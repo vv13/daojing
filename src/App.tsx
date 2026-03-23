@@ -1,8 +1,9 @@
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback, type ReactNode } from 'react';
 import { pinyin } from 'pinyin-pro';
 import { daodejing, type Chapter, type ExplanationType } from './daodejing';
 import './App.css';
 
+type Language = 'zh' | 'en';
 
 interface ReadingStats {
   readChapters: number[];
@@ -18,6 +19,23 @@ const formatTime = (seconds: number) => {
   return `${s}秒`;
 };
 
+const formatTimeEn = (seconds: number) => {
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  const s = Math.floor(seconds % 60);
+  if (h > 0) return `${h}h ${m}m ${s}s`;
+  if (m > 0) return `${m}m ${s}s`;
+  return `${s}s`;
+};
+
+const explanationLabelsEn: Record<ExplanationType, string> = {
+  literal: 'Literal',
+  philosophical: 'Philosophical',
+  practical: 'Practical',
+  historical: 'Historical',
+  poetic: 'Poetic',
+};
+
 function App() {
   const [currentChapter, setCurrentChapter] = useState<Chapter | null>(null);
   const [readChapters, setReadChapters] = useState<number[]>([]);
@@ -26,6 +44,7 @@ function App() {
   const [isDetailMode, setIsDetailMode] = useState(false);
   const [showPinyin, setShowPinyin] = useState(false);
   const [activeExplanation, setActiveExplanation] = useState<ExplanationType>('literal');
+  const [language, setLanguage] = useState<Language>('zh');
 
   const currentReadingTimeRef = useRef(0);
   const chapterTimesRef = useRef<Record<number, number>>({});
@@ -208,21 +227,72 @@ function App() {
   const progress = Math.round((readChapters.length / daodejing.length) * 100);
 
   const isChapterRead = (id: number) => readChapters.includes(id);
+  const t = {
+    appTitle: language === 'zh' ? '《道德经》' : 'Tao Te Ching',
+    subtitle: language === 'zh' ? '老子' : 'Laozi',
+    progress: language === 'zh' ? '阅读进度' : 'Reading Progress',
+    totalDuration: language === 'zh' ? '累计时长' : 'Total Time',
+    chapterUnit: language === 'zh' ? '章' : 'chapters',
+    read: language === 'zh' ? '已读' : 'Read',
+    back: language === 'zh' ? '返回目录' : 'Back to Contents',
+    chapterReading: language === 'zh' ? '本章悟道' : 'Chapter Time',
+    chapterPrefix: language === 'zh' ? '第' : 'Chapter',
+    original: language === 'zh' ? '原文' : 'Original',
+    explanation: language === 'zh' ? '解释' : 'Interpretation',
+    explanationTabs: language === 'zh' ? '释义风格' : 'Interpretation Styles',
+    pinyin: language === 'zh' ? '拼' : 'Py',
+    prev: language === 'zh' ? '上一章' : 'Previous',
+    next: language === 'zh' ? '下一章' : 'Next',
+  };
+  const formatTimeByLanguage = (seconds: number) => (
+    language === 'zh' ? formatTime(seconds) : formatTimeEn(seconds)
+  );
+  const getChapterTitle = (chapter: Chapter) => (
+    language === 'en' ? ((chapter as { titleEn?: string }).titleEn ?? chapter.title) : chapter.title
+  );
+  const getExplanationLabel = (type: ExplanationType, label: string) => (
+    language === 'en' ? explanationLabelsEn[type] : label
+  );
+  const getExplanationContent = (content: string, contentEn?: string) => (
+    language === 'en' ? (contentEn ?? content) : content
+  );
+  const renderTopbarActions = () => (
+    <div className="topbar-actions">
+      <button
+        className="lang-toggle"
+        onClick={() => setLanguage(prev => (prev === 'zh' ? 'en' : 'zh'))}
+        type="button"
+      >
+        {language === 'zh' ? 'EN' : '中'}
+      </button>
+      <button className="icon-button" type="button" aria-label={language === 'zh' ? '设置' : 'Settings'}>
+        ⚙
+      </button>
+    </div>
+  );
+
+  const renderTopBar = ({ leftContent, fixedRightOnly = false }: { leftContent?: ReactNode; fixedRightOnly?: boolean }) => (
+    <div className={`page-topbar ${fixedRightOnly ? 'page-topbar-fixed' : 'page-topbar-inline'}`}>
+      {leftContent ? <div className="topbar-left">{leftContent}</div> : null}
+      {renderTopbarActions()}
+    </div>
+  );
 
   const renderChapterList = () => (
     <div className="chapter-list">
+      {renderTopBar({ fixedRightOnly: true })}
       <header className="header">
-        <h1>《道德经》</h1>
-        <p className="subtitle">老子</p>
+        <h1>{t.appTitle}</h1>
+        <p className="subtitle">{t.subtitle}</p>
       </header>
 
       <div className="stats-bar">
         <div className="progress-bar">
           <div className="progress-info">
             <span>
-              阅读进度{totalTime > 0 ? `（累计时长：${formatTime(Math.floor(totalTime))}）` : ''}
+              {t.progress}{totalTime > 0 ? `（${t.totalDuration}：${formatTimeByLanguage(Math.floor(totalTime))}）` : ''}
             </span>
-            <span>{readChapters.length} / {daodejing.length} 章 ({progress}%)</span>
+            <span>{readChapters.length} / {daodejing.length} {t.chapterUnit} ({progress}%)</span>
           </div>
           <div className="progress-track">
             <div className="progress-fill" style={{ width: `${progress}%` }}></div>
@@ -240,10 +310,10 @@ function App() {
               onClick={() => handleChapterClick(chapter)}
             >
               <div className="chapter-number">{chapter.id}</div>
-              <div className="chapter-title">{chapter.title}</div>
-              {isChapterRead(chapter.id) && <div className="read-badge">已读</div>}
+              <div className="chapter-title">{getChapterTitle(chapter)}</div>
+              {isChapterRead(chapter.id) && <div className="read-badge">{t.read}</div>}
               {chapterTime > 0 && (
-                <div className="chapter-time">{formatTime(chapterTime)}</div>
+                <div className="chapter-time">{formatTimeByLanguage(chapterTime)}</div>
               )}
             </div>
           );
@@ -257,26 +327,33 @@ function App() {
 
     return (
       <div className="chapter-detail">
-        <div className="detail-topbar">
-          <button className="back-button" onClick={handleBack}>
-            ← 返回目录
-          </button>
-          <span className="chapter-reading-time">本章悟道：{formatTime(currentReadingTime)}</span>
-        </div>
+        {renderTopBar({
+          leftContent: (
+            <>
+              <button className="back-button" onClick={handleBack}>
+                <svg className="back-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                  <path d="M15 18l-6-6 6-6" />
+                </svg>
+                <span>{t.back}</span>
+              </button>
+              <span className="chapter-reading-time">{t.chapterReading}：{formatTimeByLanguage(currentReadingTime)}</span>
+            </>
+          )
+        })}
 
         <div className="chapter-header">
-          <div className="chapter-id">第 {currentChapter.id} 章</div>
-          <h2 className="chapter-title-detail">{currentChapter.title}</h2>
+          <div className="chapter-id">{t.chapterPrefix} {currentChapter.id}{language === 'zh' ? ` ${t.chapterUnit}` : ''}</div>
+          <h2 className="chapter-title-detail">{getChapterTitle(currentChapter)}</h2>
         </div>
 
         <div className="content-section">
           <div className="section-header">
-            <h3>原文</h3>
+            <h3>{t.original}</h3>
             <button
               className={`pinyin-toggle ${showPinyin ? 'active' : ''}`}
               onClick={() => setShowPinyin(prev => !prev)}
             >
-              拼
+              {t.pinyin}
             </button>
           </div>
           <div className={`original-text ${showPinyin ? 'with-pinyin' : ''}`}>
@@ -301,8 +378,8 @@ function App() {
         </div>
 
         <div className="content-section">
-          <h3>解释</h3>
-          <div className="explanation-tabs" role="tablist" aria-label="释义风格">
+          <h3>{t.explanation}</h3>
+          <div className="explanation-tabs" role="tablist" aria-label={t.explanationTabs}>
             {currentChapter.explanations.map((item) => (
               <button
                 key={item.type}
@@ -312,12 +389,19 @@ function App() {
                 aria-selected={activeExplanation === item.type}
                 type="button"
               >
-                {item.label}
+                {getExplanationLabel(item.type, item.label)}
               </button>
             ))}
           </div>
           <div className="explanation-text">
-            {currentChapter.explanations.find((item) => item.type === activeExplanation)?.content}
+            {(() => {
+              const selected = currentChapter.explanations.find((item) => item.type === activeExplanation);
+              if (!selected) return '';
+              return getExplanationContent(
+                selected.content,
+                (selected as { contentEn?: string }).contentEn
+              );
+            })()}
           </div>
         </div>
 
@@ -337,8 +421,8 @@ function App() {
                 <polyline points="15 18 9 12 15 6" />
               </svg>
               <span className="nav-text">
-                <span className="nav-label">上一章</span>
-                <span className="nav-title">{daodejing.find(c => c.id === currentChapter.id - 1)?.title}</span>
+                <span className="nav-label">{t.prev}</span>
+                <span className="nav-title">{getChapterTitle(daodejing.find(c => c.id === currentChapter.id - 1) ?? currentChapter)}</span>
               </span>
             </button>
           ) : (
@@ -356,8 +440,8 @@ function App() {
               }}
             >
               <span className="nav-text">
-                <span className="nav-label">下一章</span>
-                <span className="nav-title">{daodejing.find(c => c.id === currentChapter.id + 1)?.title}</span>
+                <span className="nav-label">{t.next}</span>
+                <span className="nav-title">{getChapterTitle(daodejing.find(c => c.id === currentChapter.id + 1) ?? currentChapter)}</span>
               </span>
               <svg className="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="9 6 15 12 9 18" />
