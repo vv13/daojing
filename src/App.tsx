@@ -1,12 +1,13 @@
-import { useState, useEffect, useRef, useCallback, type ReactNode } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { pinyin } from 'pinyin-pro';
 import { daodejing, type Chapter, type ExplanationType } from './daodejing';
+import TopBar from './components/TopBar';
 import './App.css';
-
-type Language = 'zh' | 'en';
 
 interface ReadingStats {
   readChapters: number[];
+  readingChapters: number[];
+  insightStates: Record<string, InsightStateKey>;
   chapterTimes: Record<string, number>;
 }
 
@@ -19,33 +20,92 @@ const formatTime = (seconds: number) => {
   return `${s}秒`;
 };
 
-const formatTimeEn = (seconds: number) => {
-  const h = Math.floor(seconds / 3600);
-  const m = Math.floor((seconds % 3600) / 60);
-  const s = Math.floor(seconds % 60);
-  if (h > 0) return `${h}h ${m}m ${s}s`;
-  if (m > 0) return `${m}m ${s}s`;
-  return `${s}s`;
-};
+type InsightStateKey =
+  | 'init'
+  | 'seeking'
+  | 'observing'
+  | 'heard'
+  | 'reflecting'
+  | 'subtle'
+  | 'awakened';
 
-const explanationLabelsEn: Record<ExplanationType, string> = {
-  literal: 'Literal',
-  philosophical: 'Philosophical',
-  practical: 'Practical',
-  historical: 'Historical',
-  poetic: 'Poetic',
-};
+const completedInsightStates: InsightStateKey[] = ['heard', 'reflecting', 'subtle', 'awakened'];
+const isCompletedInsightState = (state?: InsightStateKey) => Boolean(state && completedInsightStates.includes(state));
+
+const insightStates = [
+  {
+    key: 'init' as const,
+    label: '叩门',
+    hint: '站在众妙之门外，准备叩响真理。',
+    badge: '叩门',
+  },
+  {
+    key: 'seeking' as const,
+    label: '涉溪',
+    hint: '刚刚踏入老子思想的溪流，感受清凉。',
+    badge: '涉溪',
+  },
+  {
+    key: 'observing' as const,
+    label: '观象',
+    hint: '「执大象，天下往」。正在观察道之气象。',
+    badge: '观象',
+  },
+  {
+    key: 'heard' as const,
+    label: '闻道',
+    hint: '听闻了这一章的真理，余音绕梁。',
+    badge: '闻道',
+  },
+  {
+    key: 'reflecting' as const,
+    label: '存思',
+    hint: '闭目静坐，将文字转化为内心的神采。',
+    badge: '存思',
+  },
+  {
+    key: 'subtle' as const,
+    label: '入微',
+    hint: '察觉到文字背后极其细微、不可言说的规律。',
+    badge: '入微',
+  },
+  {
+    key: 'awakened' as const,
+    label: '悟道',
+    hint: '此时已无所谓读与不读，与道合一。',
+    badge: '悟道',
+  },
+];
+
+const ui = {
+  appTitle: '《道德经》',
+  subtitle: '老子',
+  progress: '阅读进度',
+  totalDuration: '累计时长',
+  chapterUnit: '章',
+  reading: '观象',
+  insightTitle: '悟道状态',
+  back: '返回目录',
+  chapterReading: '本章悟道',
+  chapterPrefix: '第',
+  original: '原文',
+  explanation: '解释',
+  explanationTabs: '释义风格',
+  pinyin: '拼',
+  prev: '上一章',
+  next: '下一章',
+} as const;
 
 function App() {
   const [currentChapter, setCurrentChapter] = useState<Chapter | null>(null);
   const [readChapters, setReadChapters] = useState<number[]>([]);
+  const [readingChapters, setReadingChapters] = useState<number[]>([]);
+  const [insightChapterStates, setInsightChapterStates] = useState<Record<number, InsightStateKey>>({});
   const [chapterTimes, setChapterTimes] = useState<Record<number, number>>({});
   const [currentReadingTime, setCurrentReadingTime] = useState(0);
   const [isDetailMode, setIsDetailMode] = useState(false);
   const [showPinyin, setShowPinyin] = useState(false);
   const [activeExplanation, setActiveExplanation] = useState<ExplanationType>('literal');
-  const [language, setLanguage] = useState<Language>('zh');
-
   const currentReadingTimeRef = useRef(0);
   const chapterTimesRef = useRef<Record<number, number>>({});
   const currentChapterIdRef = useRef<number | null>(null);
@@ -54,9 +114,15 @@ function App() {
   const lastTimeRef = useRef<number>(0);
   const isRunningRef = useRef(false);
 
-  const saveStats = useCallback((chapters: number[], times: Record<number, number>) => {
+  const saveStats = useCallback((chapters: number[], reading: number[], insight: Record<number, InsightStateKey>, times: Record<number, number>) => {
+    const insightRecord: Record<string, InsightStateKey> = {};
+    for (const [key, value] of Object.entries(insight)) {
+      insightRecord[String(key)] = value;
+    }
     const stats: ReadingStats = {
       readChapters: chapters,
+      readingChapters: reading,
+      insightStates: insightRecord,
       chapterTimes: times,
     };
     localStorage.setItem('daodejing_stats', JSON.stringify(stats));
@@ -76,7 +142,20 @@ function App() {
     if (saved) {
       const stats = JSON.parse(saved);
       const chapters: number[] = stats.readChapters || [];
-      setReadChapters(chapters);
+      const reading: number[] = stats.readingChapters || [];
+      const savedInsight: Record<number, InsightStateKey> = {};
+      if (stats.insightStates) {
+        for (const [key, value] of Object.entries(stats.insightStates as Record<string, InsightStateKey>)) {
+          savedInsight[Number(key)] = value;
+        }
+      }
+      const hasInsightRecord = Boolean(stats.insightStates);
+      const completedByInsight = Object.entries(savedInsight)
+        .filter(([, state]) => isCompletedInsightState(state))
+        .map(([id]) => Number(id));
+      setReadChapters(hasInsightRecord ? completedByInsight : chapters);
+      setReadingChapters(reading.filter(id => !completedByInsight.includes(id)));
+      setInsightChapterStates(savedInsight);
 
       if (stats.chapterTimes) {
         const times: Record<number, number> = {};
@@ -97,10 +176,10 @@ function App() {
 
   // chapterTimes 变化时保存到 localStorage
   useEffect(() => {
-    if (readChapters.length > 0 || Object.keys(chapterTimes).length > 0) {
-      saveStats(readChapters, chapterTimes);
+    if (readChapters.length > 0 || readingChapters.length > 0 || Object.keys(insightChapterStates).length > 0 || Object.keys(chapterTimes).length > 0) {
+      saveStats(readChapters, readingChapters, insightChapterStates, chapterTimes);
     }
-  }, [chapterTimes, readChapters, saveStats]);
+  }, [chapterTimes, readChapters, readingChapters, insightChapterStates, saveStats]);
 
   const flushCurrentTime = useCallback(() => {
     const chapterId = currentChapterIdRef.current;
@@ -184,8 +263,11 @@ function App() {
       if (chapterId != null) {
         const times = { ...chapterTimesRef.current, [chapterId]: Math.floor(currentReadingTimeRef.current) };
         const saved = localStorage.getItem('daodejing_stats');
-        const readChaps = saved ? (JSON.parse(saved).readChapters || []) : [];
-        localStorage.setItem('daodejing_stats', JSON.stringify({ readChapters: readChaps, chapterTimes: times }));
+        const parsed = saved ? JSON.parse(saved) : {};
+        const readChaps = parsed.readChapters || [];
+        const readingChaps = parsed.readingChapters || [];
+        const states = parsed.insightStates || {};
+        localStorage.setItem('daodejing_stats', JSON.stringify({ readChapters: readChaps, readingChapters: readingChaps, insightStates: states, chapterTimes: times }));
       }
     };
   }, [stopTimer]);
@@ -205,10 +287,27 @@ function App() {
 
     startTimer();
 
-    setReadChapters(prev => {
-      const newChapters = [...new Set([...prev, chapter.id])];
-      return newChapters;
+    setReadingChapters(prev => {
+      if (readChapters.includes(chapter.id) || prev.includes(chapter.id)) return prev;
+      return [...prev, chapter.id];
     });
+    setInsightChapterStates(prev => {
+      if (prev[chapter.id]) return prev;
+      return { ...prev, [chapter.id]: 'init' };
+    });
+  };
+
+  const handleInsightStateChange = (state: InsightStateKey) => {
+    const chapterId = currentChapter?.id;
+    if (!chapterId) return;
+    setInsightChapterStates(prev => ({ ...prev, [chapterId]: state }));
+    setReadChapters(prev => {
+      if (isCompletedInsightState(state)) {
+        return prev.includes(chapterId) ? prev : [...prev, chapterId];
+      }
+      return prev.filter(id => id !== chapterId);
+    });
+    setReadingChapters(prev => prev.filter(id => id !== chapterId));
   };
 
   const handleBack = () => {
@@ -227,72 +326,28 @@ function App() {
   const progress = Math.round((readChapters.length / daodejing.length) * 100);
 
   const isChapterRead = (id: number) => readChapters.includes(id);
-  const t = {
-    appTitle: language === 'zh' ? '《道德经》' : 'Tao Te Ching',
-    subtitle: language === 'zh' ? '老子' : 'Laozi',
-    progress: language === 'zh' ? '阅读进度' : 'Reading Progress',
-    totalDuration: language === 'zh' ? '累计时长' : 'Total Time',
-    chapterUnit: language === 'zh' ? '章' : 'chapters',
-    read: language === 'zh' ? '已读' : 'Read',
-    back: language === 'zh' ? '返回目录' : 'Back to Contents',
-    chapterReading: language === 'zh' ? '本章悟道' : 'Chapter Time',
-    chapterPrefix: language === 'zh' ? '第' : 'Chapter',
-    original: language === 'zh' ? '原文' : 'Original',
-    explanation: language === 'zh' ? '解释' : 'Interpretation',
-    explanationTabs: language === 'zh' ? '释义风格' : 'Interpretation Styles',
-    pinyin: language === 'zh' ? '拼' : 'Py',
-    prev: language === 'zh' ? '上一章' : 'Previous',
-    next: language === 'zh' ? '下一章' : 'Next',
+  const isChapterReading = (id: number) => readingChapters.includes(id) && !isChapterRead(id);
+  const getInsightState = (id: number) => insightChapterStates[id];
+  const getInsightBadge = (id: number) => {
+    const state = insightStates.find(item => item.key === getInsightState(id));
+    if (!state) return null;
+    return state.badge;
   };
-  const formatTimeByLanguage = (seconds: number) => (
-    language === 'zh' ? formatTime(seconds) : formatTimeEn(seconds)
-  );
-  const getChapterTitle = (chapter: Chapter) => (
-    language === 'en' ? ((chapter as { titleEn?: string }).titleEn ?? chapter.title) : chapter.title
-  );
-  const getExplanationLabel = (type: ExplanationType, label: string) => (
-    language === 'en' ? explanationLabelsEn[type] : label
-  );
-  const getExplanationContent = (content: string, contentEn?: string) => (
-    language === 'en' ? (contentEn ?? content) : content
-  );
-  const renderTopbarActions = () => (
-    <div className="topbar-actions">
-      <button
-        className="lang-toggle"
-        onClick={() => setLanguage(prev => (prev === 'zh' ? 'en' : 'zh'))}
-        type="button"
-      >
-        {language === 'zh' ? 'EN' : '中'}
-      </button>
-      <button className="icon-button" type="button" aria-label={language === 'zh' ? '设置' : 'Settings'}>
-        ⚙
-      </button>
-    </div>
-  );
-
-  const renderTopBar = ({ leftContent, fixedRightOnly = false }: { leftContent?: ReactNode; fixedRightOnly?: boolean }) => (
-    <div className={`page-topbar ${fixedRightOnly ? 'page-topbar-fixed' : 'page-topbar-inline'}`}>
-      {leftContent ? <div className="topbar-left">{leftContent}</div> : null}
-      {renderTopbarActions()}
-    </div>
-  );
 
   const renderChapterList = () => (
     <div className="chapter-list">
-      {renderTopBar({ fixedRightOnly: true })}
       <header className="header">
-        <h1>{t.appTitle}</h1>
-        <p className="subtitle">{t.subtitle}</p>
+        <h1>{ui.appTitle}</h1>
+        <p className="subtitle">{ui.subtitle}</p>
       </header>
 
       <div className="stats-bar">
         <div className="progress-bar">
           <div className="progress-info">
             <span>
-              {t.progress}{totalTime > 0 ? `（${t.totalDuration}：${formatTimeByLanguage(Math.floor(totalTime))}）` : ''}
+              {ui.progress}{totalTime > 0 ? `（${ui.totalDuration}：${formatTime(Math.floor(totalTime))}）` : ''}
             </span>
-            <span>{readChapters.length} / {daodejing.length} {t.chapterUnit} ({progress}%)</span>
+            <span>{readChapters.length} / {daodejing.length} {ui.chapterUnit} ({progress}%)</span>
           </div>
           <div className="progress-track">
             <div className="progress-fill" style={{ width: `${progress}%` }}></div>
@@ -310,10 +365,17 @@ function App() {
               onClick={() => handleChapterClick(chapter)}
             >
               <div className="chapter-number">{chapter.id}</div>
-              <div className="chapter-title">{getChapterTitle(chapter)}</div>
-              {isChapterRead(chapter.id) && <div className="read-badge">{t.read}</div>}
+              <div className="chapter-title">{chapter.title}</div>
+              {getInsightBadge(chapter.id) && (
+                <div className={`read-badge insight-badge insight-badge--${getInsightState(chapter.id)}`}>
+                  {getInsightBadge(chapter.id)}
+                </div>
+              )}
+              {!getInsightBadge(chapter.id) && isChapterReading(chapter.id) && (
+                <div className="reading-badge insight-badge insight-badge--observing">{ui.reading}</div>
+              )}
               {chapterTime > 0 && (
-                <div className="chapter-time">{formatTimeByLanguage(chapterTime)}</div>
+                <div className="chapter-time">{formatTime(chapterTime)}</div>
               )}
             </div>
           );
@@ -325,35 +387,37 @@ function App() {
   const renderChapterDetail = () => {
     if (!currentChapter) return null;
 
+    const currentInsightKey = getInsightState(currentChapter.id);
+    const currentInsightState = insightStates.find(s => s.key === currentInsightKey)
+      ?? insightStates.find(s => s.key === 'init');
+    const insightDescription = currentInsightState?.hint ?? '';
+
     return (
       <div className="chapter-detail">
-        {renderTopBar({
-          leftContent: (
-            <>
-              <button className="back-button" onClick={handleBack}>
-                <svg className="back-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <path d="M15 18l-6-6 6-6" />
-                </svg>
-                <span>{t.back}</span>
-              </button>
-              <span className="chapter-reading-time">{t.chapterReading}：{formatTimeByLanguage(currentReadingTime)}</span>
-            </>
-          )
-        })}
+        <TopBar
+          leftContent={(
+            <button className="back-button" onClick={handleBack}>
+              <svg className="back-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <path d="M15 18l-6-6 6-6" />
+              </svg>
+              <span>{ui.back}</span>
+            </button>
+          )}
+        />
 
         <div className="chapter-header">
-          <div className="chapter-id">{t.chapterPrefix} {currentChapter.id}{language === 'zh' ? ` ${t.chapterUnit}` : ''}</div>
-          <h2 className="chapter-title-detail">{getChapterTitle(currentChapter)}</h2>
+          <div className="chapter-id">{ui.chapterPrefix} {currentChapter.id} {ui.chapterUnit}</div>
+          <h2 className="chapter-title-detail">{currentChapter.title}</h2>
         </div>
 
         <div className="content-section">
           <div className="section-header">
-            <h3>{t.original}</h3>
+            <h3>{ui.original}</h3>
             <button
               className={`pinyin-toggle ${showPinyin ? 'active' : ''}`}
               onClick={() => setShowPinyin(prev => !prev)}
             >
-              {t.pinyin}
+              {ui.pinyin}
             </button>
           </div>
           <div className={`original-text ${showPinyin ? 'with-pinyin' : ''}`}>
@@ -378,8 +442,8 @@ function App() {
         </div>
 
         <div className="content-section">
-          <h3>{t.explanation}</h3>
-          <div className="explanation-tabs" role="tablist" aria-label={t.explanationTabs}>
+          <h3>{ui.explanation}</h3>
+          <div className="explanation-tabs" role="tablist" aria-label={ui.explanationTabs}>
             {currentChapter.explanations.map((item) => (
               <button
                 key={item.type}
@@ -389,19 +453,36 @@ function App() {
                 aria-selected={activeExplanation === item.type}
                 type="button"
               >
-                {getExplanationLabel(item.type, item.label)}
+                {item.label}
               </button>
             ))}
           </div>
           <div className="explanation-text">
-            {(() => {
-              const selected = currentChapter.explanations.find((item) => item.type === activeExplanation);
-              if (!selected) return '';
-              return getExplanationContent(
-                selected.content,
-                (selected as { contentEn?: string }).contentEn
+            {currentChapter.explanations.find((item) => item.type === activeExplanation)?.content ?? ''}
+          </div>
+        </div>
+
+        <div className="insight-panel">
+          <div className="insight-header">
+            <h4>{ui.insightTitle}</h4>
+            <span className="insight-chapter-time">{ui.chapterReading}：{formatTime(currentReadingTime)}</span>
+          </div>
+          <p className="insight-hint">{insightDescription}</p>
+          <div className="insight-options">
+            {insightStates.map((state) => {
+              const isActive = getInsightState(currentChapter.id) === state.key;
+              return (
+                <button
+                  key={state.key}
+                  className={`insight-option insight-option--${state.key} ${isActive ? 'active' : ''}`}
+                  onClick={() => handleInsightStateChange(state.key)}
+                  type="button"
+                >
+                  <span className="insight-label">{state.label}</span>
+                  <span className="insight-desc">{state.hint}</span>
+                </button>
               );
-            })()}
+            })}
           </div>
         </div>
 
@@ -421,8 +502,8 @@ function App() {
                 <polyline points="15 18 9 12 15 6" />
               </svg>
               <span className="nav-text">
-                <span className="nav-label">{t.prev}</span>
-                <span className="nav-title">{getChapterTitle(daodejing.find(c => c.id === currentChapter.id - 1) ?? currentChapter)}</span>
+                <span className="nav-label">{ui.prev}</span>
+                <span className="nav-title">{(daodejing.find(c => c.id === currentChapter.id - 1) ?? currentChapter).title}</span>
               </span>
             </button>
           ) : (
@@ -440,8 +521,8 @@ function App() {
               }}
             >
               <span className="nav-text">
-                <span className="nav-label">{t.next}</span>
-                <span className="nav-title">{getChapterTitle(daodejing.find(c => c.id === currentChapter.id + 1) ?? currentChapter)}</span>
+                <span className="nav-label">{ui.next}</span>
+                <span className="nav-title">{(daodejing.find(c => c.id === currentChapter.id + 1) ?? currentChapter).title}</span>
               </span>
               <svg className="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <polyline points="9 6 15 12 9 18" />

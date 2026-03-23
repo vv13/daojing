@@ -46,14 +46,6 @@ body {
   position: relative;
 }
 
-.page-topbar-fixed {
-  position: fixed;
-  top: 16px;
-  right: 16px;
-  z-index: 20;
-  margin-bottom: 0;
-}
-
 .topbar-left {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
@@ -62,49 +54,6 @@ body {
   flex: 1;
   min-width: 0;
   overflow: hidden;
-}
-
-.topbar-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-left: auto;
-  flex-shrink: 0;
-}
-
-.lang-toggle {
-  border: 1px solid var(--border);
-  background: var(--card-bg);
-  color: var(--text-secondary);
-  border-radius: 999px;
-  padding: 6px 12px;
-  font-size: 0.85rem;
-  cursor: pointer;
-  box-shadow: 0 2px 8px var(--shadow);
-}
-
-.lang-toggle:hover {
-  border-color: var(--primary);
-  color: var(--primary);
-}
-
-.icon-button {
-  border: 1px solid var(--border);
-  background: var(--card-bg);
-  color: var(--text-secondary);
-  border-radius: 999px;
-  width: 34px;
-  height: 34px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  box-shadow: 0 2px 8px var(--shadow);
-}
-
-.icon-button:hover {
-  border-color: var(--primary);
-  color: var(--primary);
 }
 
 /* Header */
@@ -200,15 +149,60 @@ body {
   line-height: 1.4;
 }
 
-.read-badge {
+.read-badge,
+.reading-badge {
   position: absolute;
   top: 10px;
   right: 10px;
   font-size: 0.7rem;
-  color: var(--primary);
-  background: var(--accent-light);
   padding: 2px 8px;
   border-radius: 10px;
+  font-weight: 500;
+  border: 1px solid transparent;
+}
+
+/* 分层配色：由浅入深，呼应「叩门 → 悟道」 */
+.insight-badge--init {
+  color: #5c5348;
+  background: #ebe8e2;
+  border-color: #d4cfc4;
+}
+
+.insight-badge--seeking {
+  color: #0f766e;
+  background: #ccfbf1;
+  border-color: #99f6e4;
+}
+
+.insight-badge--observing {
+  color: #0369a1;
+  background: #e0f2fe;
+  border-color: #bae6fd;
+}
+
+.insight-badge--heard {
+  color: #166534;
+  background: #dcfce7;
+  border-color: #bbf7d0;
+}
+
+.insight-badge--reflecting {
+  color: #5b21b6;
+  background: #ede9fe;
+  border-color: #ddd6fe;
+}
+
+.insight-badge--subtle {
+  color: #92400e;
+  background: #ffedd5;
+  border-color: #fed7aa;
+}
+
+.insight-badge--awakened {
+  color: #fefce8;
+  background: linear-gradient(135deg, #78350f 0%, #92400e 100%);
+  border-color: #a16207;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.15);
 }
 
 /* Chapter Detail */
@@ -302,15 +296,6 @@ body {
 .topbar-left .back-button {
   margin-bottom: 0;
   flex-shrink: 0;
-}
-
-.chapter-reading-time {
-  font-size: 0.9rem;
-  color: var(--text-secondary);
-  white-space: nowrap;
-  pointer-events: none;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .chapter-header {
@@ -458,6 +443,124 @@ body {
   text-align: justify;
 }
 
+.insight-panel {
+  background: var(--card-bg);
+  border-radius: 16px;
+  padding: 18px 18px 16px;
+  margin: 0 0 18px;
+  box-shadow: 0 2px 12px var(--shadow);
+  border: 1px solid #f0e5d7;
+}
+
+.insight-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.insight-header h4 {
+  margin: 0;
+  font-size: 1rem;
+  color: var(--primary);
+}
+
+.insight-chapter-time {
+  font-size: 0.88rem;
+  color: var(--primary);
+  font-weight: 500;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.insight-hint {
+  margin: 0 0 14px;
+  color: var(--text-light);
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+
+.insight-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.insight-option {
+  border: 1px solid var(--border);
+  background: #faf8f4;
+  color: var(--text-secondary);
+  border-radius: 999px;
+  padding: 7px 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* 未选中：统一基样式；仅选中态分层配色 */
+@media (hover: hover) {
+  .insight-option:hover:not(.active) {
+    border-color: var(--accent);
+    background: #f7f3ec;
+    color: var(--text-secondary);
+  }
+}
+
+.insight-option--init.active {
+  background: #ebe8e2;
+  border-color: #a8a095;
+  color: #3d3830;
+}
+
+.insight-option--seeking.active {
+  background: #ccfbf1;
+  border-color: #2dd4bf;
+  color: #115e59;
+}
+
+.insight-option--observing.active {
+  background: #e0f2fe;
+  border-color: #38bdf8;
+  color: #075985;
+}
+
+.insight-option--heard.active {
+  background: #dcfce7;
+  border-color: #4ade80;
+  color: #14532d;
+}
+
+.insight-option--reflecting.active {
+  background: #ede9fe;
+  border-color: #a78bfa;
+  color: #4c1d95;
+}
+
+.insight-option--subtle.active {
+  background: #ffedd5;
+  border-color: #fb923c;
+  color: #7c2d12;
+}
+
+.insight-option--awakened.active {
+  background: linear-gradient(135deg, #78350f 0%, #92400e 100%);
+  border-color: #a16207;
+  color: #fefce8;
+}
+
+.insight-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.insight-desc {
+  display: none;
+}
+
 /* Chapter Navigation */
 .chapter-nav {
   display: flex;
@@ -553,15 +656,6 @@ body {
 
 /* Responsive */
 @media (max-width: 600px) {
-  .chapter-reading-time {
-    display: none;
-  }
-
-  .page-topbar-fixed {
-    top: 12px;
-    right: 12px;
-  }
-
   .header h1 {
     font-size: 1.8rem;
   }
@@ -608,5 +702,15 @@ body {
 
   .nav-title {
     font-size: 0.85rem;
+  }
+
+  .insight-panel {
+    padding: 14px;
+  }
+
+  .insight-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
   }
 }
