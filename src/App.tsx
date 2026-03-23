@@ -77,6 +77,22 @@ const insightStates = [
   },
 ];
 
+const readChapterParam = (): number | null => {
+  const raw = new URLSearchParams(window.location.search).get('chapter');
+  if (raw == null || raw === '') return null;
+  const id = Number(raw);
+  if (!Number.isInteger(id) || id < 1 || id > daodejing.length) return null;
+  return id;
+};
+
+const setChapterSearchParam = (chapterId: number | null, mode: 'push' | 'replace') => {
+  const path = window.location.pathname || '/';
+  const nextUrl = chapterId == null ? path : `${path}?chapter=${encodeURIComponent(String(chapterId))}`;
+  const state = { ddj: chapterId != null ? 1 : 0 };
+  if (mode === 'push') window.history.pushState(state, '', nextUrl);
+  else window.history.replaceState(state, '', nextUrl);
+};
+
 const ui = {
   appTitle: '《道德经》',
   subtitle: '老子',
@@ -97,18 +113,22 @@ const ui = {
 } as const;
 
 function App() {
-  const [currentChapter, setCurrentChapter] = useState<Chapter | null>(null);
+  const initialUrlChapterId = readChapterParam();
+  const initialChapter =
+    initialUrlChapterId != null ? daodejing.find((c) => c.id === initialUrlChapterId) ?? null : null;
+
+  const [currentChapter, setCurrentChapter] = useState<Chapter | null>(initialChapter);
   const [readChapters, setReadChapters] = useState<number[]>([]);
   const [readingChapters, setReadingChapters] = useState<number[]>([]);
   const [insightChapterStates, setInsightChapterStates] = useState<Record<number, InsightStateKey>>({});
   const [chapterTimes, setChapterTimes] = useState<Record<number, number>>({});
   const [currentReadingTime, setCurrentReadingTime] = useState(0);
-  const [isDetailMode, setIsDetailMode] = useState(false);
+  const [isDetailMode, setIsDetailMode] = useState(initialChapter != null);
   const [showPinyin, setShowPinyin] = useState(false);
   const [activeExplanation, setActiveExplanation] = useState<ExplanationType>('literal');
   const currentReadingTimeRef = useRef(0);
   const chapterTimesRef = useRef<Record<number, number>>({});
-  const currentChapterIdRef = useRef<number | null>(null);
+  const currentChapterIdRef = useRef<number | null>(initialChapter?.id ?? null);
 
   const timerRef = useRef<number | null>(null);
   const lastTimeRef = useRef<number>(0);
@@ -136,8 +156,10 @@ function App() {
     chapterTimesRef.current = chapterTimes;
   }, [chapterTimes]);
 
-  // 从 localStorage 读取阅读状态（兼容旧格式）
+  // 从 localStorage 读取阅读状态（兼容旧格式），并与 URL ?chapter= 对齐阅读进度
   useEffect(() => {
+    let readIds: number[] = [];
+
     const saved = localStorage.getItem('daodejing_stats');
     if (saved) {
       const stats = JSON.parse(saved);
@@ -153,7 +175,8 @@ function App() {
       const completedByInsight = Object.entries(savedInsight)
         .filter(([, state]) => isCompletedInsightState(state))
         .map(([id]) => Number(id));
-      setReadChapters(hasInsightRecord ? completedByInsight : chapters);
+      readIds = hasInsightRecord ? completedByInsight : chapters;
+      setReadChapters(readIds);
       setReadingChapters(reading.filter(id => !completedByInsight.includes(id)));
       setInsightChapterStates(savedInsight);
 
@@ -170,6 +193,24 @@ function App() {
         chapters.forEach(id => { times[id] = perChapter; });
         setChapterTimes(times);
         chapterTimesRef.current = times;
+      }
+    }
+
+    const urlId = readChapterParam();
+    if (urlId != null) {
+      const ch = daodejing.find((c) => c.id === urlId);
+      if (ch) {
+        setReadingChapters((prev) => {
+          if (readIds.includes(ch.id) || prev.includes(ch.id)) return prev;
+          return [...prev, ch.id];
+        });
+        setInsightChapterStates((prev) => {
+          if (prev[ch.id]) return prev;
+          return { ...prev, [ch.id]: 'init' };
+        });
+        const acc = chapterTimesRef.current[ch.id] || 0;
+        setCurrentReadingTime(acc);
+        currentReadingTimeRef.current = acc;
       }
     }
   }, []);
@@ -272,29 +313,56 @@ function App() {
     };
   }, [stopTimer]);
 
+  const goToChapter = useCallback(
+    (chapter: Chapter, urlMode: 'push' | 'replace' | 'none') => {
+      setActiveExplanation('literal');
+      flushCurrentTime();
+      stopTimer();
+
+      setCurrentChapter(chapter);
+      currentChapterIdRef.current = chapter.id;
+      setIsDetailMode(true);
+
+      const accumulated = chapterTimesRef.current[chapter.id] || 0;
+      setCurrentReadingTime(accumulated);
+      currentReadingTimeRef.current = accumulated;
+
+      startTimer();
+
+      setReadingChapters((prev) => {
+        if (readChapters.includes(chapter.id) || prev.includes(chapter.id)) return prev;
+        return [...prev, chapter.id];
+      });
+      setInsightChapterStates((prev) => {
+        if (prev[chapter.id]) return prev;
+        return { ...prev, [chapter.id]: 'init' };
+      });
+
+      if (urlMode !== 'none') setChapterSearchParam(chapter.id, urlMode);
+    },
+    [flushCurrentTime, stopTimer, startTimer, readChapters],
+  );
+
+  useEffect(() => {
+    const onPopState = () => {
+      const id = readChapterParam();
+      if (id == null) {
+        flushCurrentTime();
+        stopTimer();
+        setIsDetailMode(false);
+        setCurrentChapter(null);
+        currentChapterIdRef.current = null;
+        return;
+      }
+      const ch = daodejing.find((c) => c.id === id);
+      if (ch) goToChapter(ch, 'none');
+    };
+    window.addEventListener('popstate', onPopState);
+    return () => window.removeEventListener('popstate', onPopState);
+  }, [flushCurrentTime, stopTimer, goToChapter]);
+
   const handleChapterClick = (chapter: Chapter) => {
-    setActiveExplanation('literal');
-    flushCurrentTime();
-    stopTimer();
-
-    setCurrentChapter(chapter);
-    currentChapterIdRef.current = chapter.id;
-    setIsDetailMode(true);
-
-    const accumulated = chapterTimesRef.current[chapter.id] || 0;
-    setCurrentReadingTime(accumulated);
-    currentReadingTimeRef.current = accumulated;
-
-    startTimer();
-
-    setReadingChapters(prev => {
-      if (readChapters.includes(chapter.id) || prev.includes(chapter.id)) return prev;
-      return [...prev, chapter.id];
-    });
-    setInsightChapterStates(prev => {
-      if (prev[chapter.id]) return prev;
-      return { ...prev, [chapter.id]: 'init' };
-    });
+    goToChapter(chapter, 'push');
   };
 
   const handleInsightStateChange = (state: InsightStateKey) => {
@@ -316,6 +384,7 @@ function App() {
     setIsDetailMode(false);
     setCurrentChapter(null);
     currentChapterIdRef.current = null;
+    setChapterSearchParam(null, 'replace');
   };
 
   const totalTime = Object.values(chapterTimes).reduce((a, b) => a + b, 0)
@@ -493,7 +562,7 @@ function App() {
               onClick={() => {
                 const prev = daodejing.find(c => c.id === currentChapter.id - 1);
                 if (prev) {
-                  handleChapterClick(prev);
+                  goToChapter(prev, 'replace');
                   window.scrollTo(0, 0);
                 }
               }}
@@ -515,7 +584,7 @@ function App() {
               onClick={() => {
                 const next = daodejing.find(c => c.id === currentChapter.id + 1);
                 if (next) {
-                  handleChapterClick(next);
+                  goToChapter(next, 'replace');
                   window.scrollTo(0, 0);
                 }
               }}

@@ -6,6 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "deploy": "npm run build && bash scripts/deploy.sh",
+    "deploy:upload": "bash scripts/deploy.sh",
     "lint": "eslint .",
     "preview": "vite preview"
   },
