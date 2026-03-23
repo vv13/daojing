@@ -1,73 +1,23 @@
-# React + TypeScript + Vite
+# 道德经 · 老子
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+这是一部《道德经》的在线读本：八十一章原文，并配有多种角度的白话与赏析，方便慢慢读、反复读。你可以在目录里任选一章进入阅读；需要认读时，可以打开拼音辅助。
 
-Currently, two official plugins are available:
+## 可以怎么用
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- **目录**：总览全部章节，标题即各章首句大意。
+- **释义**：每一章除了原文，还有白话直译、哲学解析、生活感悟、历史背景和诗意赏析等，可按自己的兴趣切换。
+- **进度与时光**：页面会记住你读过哪些章、在某一章上大概花了多少时间。这些信息只保存在**你当前使用的浏览器**里，不会上传到服务器；换浏览器或清除站点数据会相当于重新开始累计。
 
-## React Compiler
+## 关于「悟道」与进度
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+每一章都有一条从心入门到渐深领会的小径，名字从 **叩门、涉溪、观象**，到 **闻道、存思、入微、悟道**。你可以按自己的感受，在阅读时调整当前章节所处的阶段——这没有标准答案，只是帮你标记「我和这一章相处到哪一步了」。
 
-## Expanding the ESLint configuration
+当你把某一章调到 **闻道** 及之后的阶段时，这一章会计入「已读」；若改回更早的阶段，则会从已读里撤下。顶上的阅读进度百分比，就是按「已读章数 ÷ 八十一章」来算的。
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+打开过、但还没调到「闻道」及之后的章节，会视作「在读」。**阅读时长**只在您停留在某一章的正文页、并且浏览器页签处于前台时累计；回到目录、切换到别的标签页或关掉页面，当前这一章的计时会先记下来，下次再进同一章会接着累加。
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+若通过带章节编号的链接直接打开某一章（例如分享链接里的 `?chapter=数字`），也会像从目录点进去一样，为你记下在读状态与时长。
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+---
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
-
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+经文与释义内容的版权与使用范围请遵循来源与相关法规；公开转载或商用前请自行确认授权。
