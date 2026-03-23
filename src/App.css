@@ -23,6 +23,7 @@ body {
   background-color: var(--bg-color);
   color: var(--text-primary);
   line-height: 1.6;
+  -webkit-tap-highlight-color: transparent;
 }
 
 .app {
@@ -119,16 +120,11 @@ body {
   border-radius: 12px;
   padding: 20px 16px;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
   position: relative;
   box-shadow: 0 2px 8px var(--shadow);
   border: 1px solid transparent;
-}
-
-.chapter-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 8px 20px var(--shadow);
-  border-color: var(--accent);
+  touch-action: manipulation;
 }
 
 .chapter-card.read {
@@ -213,11 +209,11 @@ body {
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translate3d(0, 10px, 0);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translate3d(0, 0, 0);
   }
 }
 
@@ -232,11 +228,12 @@ body {
   cursor: pointer;
   font-size: 0.95rem;
   color: var(--text-secondary);
-  transition: all 0.3s ease;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.15s ease;
   margin-bottom: 0;
   position: relative;
   z-index: 3;
   pointer-events: auto;
+  touch-action: manipulation;
 }
 
 .back-icon {
@@ -256,6 +253,16 @@ body {
   .back-button:hover .back-icon {
     transform: translateX(-1px);
   }
+}
+
+.back-button:active {
+  transform: scale(0.98);
+  background: var(--accent-light);
+  color: var(--primary);
+}
+
+.back-button:active .back-icon {
+  transform: translateX(-1px);
 }
 
 /* 统计栏 */
@@ -354,14 +361,23 @@ body {
   color: var(--text-light);
   font-size: 0.8rem;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: border-color 0.2s ease, color 0.2s ease, transform 0.15s ease, background 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  touch-action: manipulation;
 }
 
-.pinyin-toggle:hover {
+@media (hover: hover) {
+  .pinyin-toggle:hover:not(.active) {
+    border-color: var(--primary);
+    color: var(--primary);
+  }
+}
+
+.pinyin-toggle:active:not(.active) {
+  transform: scale(0.92);
   border-color: var(--primary);
   color: var(--primary);
 }
@@ -422,10 +438,19 @@ body {
   font-size: 0.86rem;
   white-space: nowrap;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: border-color 0.2s ease, color 0.2s ease, background 0.2s ease, transform 0.15s ease;
+  touch-action: manipulation;
 }
 
-.explanation-tab:hover {
+@media (hover: hover) {
+  .explanation-tab:hover:not(.active) {
+    border-color: var(--primary);
+    color: var(--primary);
+  }
+}
+
+.explanation-tab:active:not(.active) {
+  transform: scale(0.97);
   border-color: var(--primary);
   color: var(--primary);
 }
@@ -494,10 +519,11 @@ body {
   border-radius: 999px;
   padding: 7px 12px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: border-color 0.2s ease, background 0.2s ease, transform 0.15s ease;
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  touch-action: manipulation;
 }
 
 /* 未选中：统一基样式；仅选中态分层配色 */
@@ -507,6 +533,12 @@ body {
     background: #f7f3ec;
     color: var(--text-secondary);
   }
+}
+
+.insight-option:active:not(.active) {
+  transform: scale(0.97);
+  border-color: var(--accent);
+  background: #f7f3ec;
 }
 
 .insight-option--init.active {
@@ -579,10 +611,11 @@ body {
   border-radius: 12px;
   font-size: 1rem;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
   background: var(--card-bg);
   color: var(--primary);
   box-shadow: 0 2px 8px var(--shadow);
+  touch-action: manipulation;
 }
 
 .nav-button.next {
@@ -645,13 +678,33 @@ body {
   }
 }
 
-/* 章节卡片移动端 hover */
+.nav-button:active {
+  transform: scale(0.97);
+  border-color: var(--primary);
+  background: linear-gradient(135deg, #faf8f5 0%, #f5efe6 100%);
+  box-shadow: 0 2px 8px var(--shadow);
+}
+
+.nav-button.prev:active .nav-icon {
+  transform: translateX(-2px);
+}
+
+.nav-button.next:active .nav-icon {
+  transform: translateX(2px);
+}
+
+/* 仅支持真实 hover 的指针设备（避免触摸端「粘滞」hover） */
 @media (hover: hover) {
   .chapter-card:hover {
     transform: translateY(-4px);
     box-shadow: 0 8px 20px var(--shadow);
     border-color: var(--accent);
   }
+}
+
+.chapter-card:active {
+  transform: scale(0.98);
+  box-shadow: 0 2px 8px var(--shadow);
 }
 
 /* Responsive */
@@ -677,10 +730,6 @@ body {
     font-size: 1.05rem;
   }
 
-  .chapter-card:active {
-    transform: scale(0.98);
-  }
-
   .chapter-nav {
     gap: 10px;
   }
@@ -688,11 +737,6 @@ body {
   .nav-button {
     padding: 12px 14px;
     gap: 8px;
-  }
-
-  .nav-button:active {
-    transform: scale(0.97);
-    background: linear-gradient(135deg, #faf8f5 0%, #f5efe6 100%);
   }
 
   .nav-icon {
@@ -712,5 +756,37 @@ body {
     flex-direction: column;
     align-items: flex-start;
     gap: 4px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .chapter-detail {
+    animation: none;
+  }
+
+  .progress-fill,
+  .chapter-card,
+  .back-button,
+  .back-icon,
+  .nav-button,
+  .nav-icon,
+  .pinyin-toggle,
+  .explanation-tab,
+  .insight-option {
+    transition: none;
+  }
+
+  .chapter-card:hover,
+  .chapter-card:active,
+  .back-button:active,
+  .pinyin-toggle:active,
+  .explanation-tab:active,
+  .insight-option:active,
+  .nav-button:hover,
+  .nav-button:active,
+  .nav-button .nav-icon,
+  .back-button:hover .back-icon,
+  .back-button:active .back-icon {
+    transform: none;
   }
 }
