@@ -396,7 +396,11 @@ body {
 }
 
 .original-text.with-pinyin {
-  line-height: 3;
+  line-height: 2.35;
+}
+
+.original-text.with-pinyin p {
+  margin-bottom: 4px;
 }
 
 .original-text p {
@@ -406,6 +410,14 @@ body {
 
 .original-text ruby {
   ruby-align: center;
+  ruby-position: over;
+  margin: 0 1px;
+}
+
+.original-text .char-ruby {
+  display: inline-block;
+  margin: 0;
+  vertical-align: baseline;
 }
 
 .original-text rt {
@@ -413,6 +425,12 @@ body {
   font-size: 0.5em;
   color: var(--primary-light);
   font-style: normal;
+}
+
+.original-text.with-pinyin rt {
+  font-size: 0.44em;
+  letter-spacing: normal;
+  font-weight: 500;
 }
 
 .original-text .punctuation {
