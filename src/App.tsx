@@ -1,14 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { pinyin } from 'pinyin-pro';
-import { daodejing } from './daodejing';
+import { daodejing, type Chapter, type ExplanationType } from './daodejing';
 import './App.css';
 
-interface Chapter {
-  id: number;
-  title: string;
-  original: string;
-  explanation: string;
-}
 
 interface ReadingStats {
   readChapters: number[];
@@ -31,6 +25,7 @@ function App() {
   const [currentReadingTime, setCurrentReadingTime] = useState(0);
   const [isDetailMode, setIsDetailMode] = useState(false);
   const [showPinyin, setShowPinyin] = useState(false);
+  const [activeExplanation, setActiveExplanation] = useState<ExplanationType>('literal');
 
   const currentReadingTimeRef = useRef(0);
   const chapterTimesRef = useRef<Record<number, number>>({});
@@ -177,6 +172,7 @@ function App() {
   }, [stopTimer]);
 
   const handleChapterClick = (chapter: Chapter) => {
+    setActiveExplanation('literal');
     flushCurrentTime();
     stopTimer();
 
@@ -307,38 +303,70 @@ function App() {
 
         <div className="content-section">
           <h3>解释</h3>
+          <div className="explanation-tabs" role="tablist" aria-label="释义风格">
+            {currentChapter.explanations.map((item) => (
+              <button
+                key={item.type}
+                className={`explanation-tab ${activeExplanation === item.type ? 'active' : ''}`}
+                onClick={() => setActiveExplanation(item.type)}
+                role="tab"
+                aria-selected={activeExplanation === item.type}
+                type="button"
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
           <div className="explanation-text">
-            {currentChapter.explanation}
+            {currentChapter.explanations.find((item) => item.type === activeExplanation)?.content}
           </div>
         </div>
 
         <div className="chapter-nav">
-          <button
-            className={`nav-button prev ${currentChapter.id === 1 ? 'disabled' : ''}`}
-            disabled={currentChapter.id === 1}
-            onClick={() => {
-              const prev = daodejing.find(c => c.id === currentChapter.id - 1);
-              if (prev) {
-                handleChapterClick(prev);
-                window.scrollTo(0, 0);
-              }
-            }}
-          >
-            ← 上一章
-          </button>
-          <button
-            className={`nav-button next ${currentChapter.id === daodejing.length ? 'disabled' : ''}`}
-            disabled={currentChapter.id === daodejing.length}
-            onClick={() => {
-              const next = daodejing.find(c => c.id === currentChapter.id + 1);
-              if (next) {
-                handleChapterClick(next);
-                window.scrollTo(0, 0);
-              }
-            }}
-          >
-            下一章 →
-          </button>
+          {currentChapter.id > 1 ? (
+            <button
+              className="nav-button prev"
+              onClick={() => {
+                const prev = daodejing.find(c => c.id === currentChapter.id - 1);
+                if (prev) {
+                  handleChapterClick(prev);
+                  window.scrollTo(0, 0);
+                }
+              }}
+            >
+              <svg className="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="15 18 9 12 15 6" />
+              </svg>
+              <span className="nav-text">
+                <span className="nav-label">上一章</span>
+                <span className="nav-title">{daodejing.find(c => c.id === currentChapter.id - 1)?.title}</span>
+              </span>
+            </button>
+          ) : (
+            <span />
+          )}
+          {currentChapter.id < daodejing.length ? (
+            <button
+              className="nav-button next"
+              onClick={() => {
+                const next = daodejing.find(c => c.id === currentChapter.id + 1);
+                if (next) {
+                  handleChapterClick(next);
+                  window.scrollTo(0, 0);
+                }
+              }}
+            >
+              <span className="nav-text">
+                <span className="nav-label">下一章</span>
+                <span className="nav-title">{daodejing.find(c => c.id === currentChapter.id + 1)?.title}</span>
+              </span>
+              <svg className="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="9 6 15 12 9 18" />
+              </svg>
+            </button>
+          ) : (
+            <span />
+          )}
         </div>
       </div>
     );
