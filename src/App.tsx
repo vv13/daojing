@@ -219,16 +219,15 @@ function App() {
       <div className="stats-bar">
         <div className="progress-bar">
           <div className="progress-info">
-            <span>阅读进度</span>
+            <span>
+              阅读进度{totalTime > 0 ? `（累计时长：${formatTime(Math.floor(totalTime))}）` : ''}
+            </span>
             <span>{readChapters.length} / {daodejing.length} 章 ({progress}%)</span>
           </div>
           <div className="progress-track">
             <div className="progress-fill" style={{ width: `${progress}%` }}></div>
           </div>
         </div>
-        {totalTime > 0 && (
-          <div className="total-time">累计悟道：{formatTime(Math.floor(totalTime))}</div>
-        )}
       </div>
 
       <div className="chapters">
