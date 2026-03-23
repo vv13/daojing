@@ -1,0 +1,442 @@
+:root {
+  --bg-color: #f5f5f0;
+  --card-bg: #ffffff;
+  --primary: #8b4513;
+  --primary-light: #a0522d;
+  --text-primary: #2c2c2c;
+  --text-secondary: #666;
+  --text-light: #999;
+  --accent: #d4a574;
+  --accent-light: #e8d4bc;
+  --border: #e0d5c7;
+  --shadow: rgba(139, 69, 19, 0.1);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-primary);
+  line-height: 1.6;
+}
+
+.app {
+  min-height: 100vh;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+/* Header */
+.header {
+  text-align: center;
+  padding: 40px 0 30px;
+}
+
+.header h1 {
+  font-size: 2.5rem;
+  color: var(--primary);
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  margin-bottom: 8px;
+}
+
+.header .subtitle {
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+  font-family: 'Kaiti', 'STKaiti', serif;
+}
+
+/* Progress Bar */
+.progress-bar {
+  background: var(--card-bg);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 30px;
+  box-shadow: 0 2px 8px var(--shadow);
+}
+
+.progress-info {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+}
+
+.progress-track {
+  height: 8px;
+  background: var(--accent-light);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary), var(--accent));
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+/* Chapter List */
+.chapters {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 16px;
+}
+
+.chapter-card {
+  background: var(--card-bg);
+  border-radius: 12px;
+  padding: 20px 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  box-shadow: 0 2px 8px var(--shadow);
+  border: 1px solid transparent;
+}
+
+.chapter-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px var(--shadow);
+  border-color: var(--accent);
+}
+
+.chapter-card.read {
+  border-color: var(--primary-light);
+  background: linear-gradient(135deg, #faf8f5 0%, #f5efe6 100%);
+}
+
+.chapter-number {
+  font-size: 0.85rem;
+  color: var(--text-light);
+  margin-bottom: 8px;
+}
+
+.chapter-title {
+  font-size: 1rem;
+  color: var(--text-primary);
+  font-family: 'Kaiti', 'STKaiti', serif;
+  line-height: 1.4;
+}
+
+.read-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 0.7rem;
+  color: var(--primary);
+  background: var(--accent-light);
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+/* Chapter Detail */
+.chapter-detail {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.back-button {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  transition: all 0.3s ease;
+  margin-bottom: 20px;
+}
+
+.back-button:hover {
+  background: var(--accent-light);
+  color: var(--primary);
+}
+
+/* 移动端 hover 兼容 */
+@media (hover: hover) {
+  .back-button:hover {
+    background: var(--accent-light);
+    color: var(--primary);
+  }
+}
+
+/* 统计栏 */
+.stats-bar {
+  background: var(--card-bg);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 30px;
+  box-shadow: 0 2px 8px var(--shadow);
+}
+
+.stats-bar .progress-bar {
+  background: none;
+  border-radius: 0;
+  padding: 0;
+  margin-bottom: 0;
+  box-shadow: none;
+}
+
+.total-time {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border);
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--primary);
+  font-weight: 500;
+}
+
+/* 章节卡片时长 */
+.chapter-time {
+  margin-top: 8px;
+  font-size: 0.75rem;
+  color: var(--text-light);
+}
+
+/* 详情页顶栏 */
+.detail-topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.detail-topbar .back-button {
+  margin-bottom: 0;
+}
+
+.chapter-reading-time {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.chapter-header {
+  text-align: center;
+  margin-bottom: 30px;
+  padding: 30px 20px;
+  background: var(--card-bg);
+  border-radius: 16px;
+  box-shadow: 0 2px 12px var(--shadow);
+}
+
+.chapter-id {
+  font-size: 0.9rem;
+  color: var(--text-light);
+  margin-bottom: 10px;
+}
+
+.chapter-title-detail {
+  font-size: 1.8rem;
+  color: var(--primary);
+  font-family: 'Kaiti', 'STKaiti', serif;
+  letter-spacing: 0.2em;
+}
+
+/* Content Sections */
+.content-section {
+  background: var(--card-bg);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 12px var(--shadow);
+}
+
+.content-section h3 {
+  font-size: 1.1rem;
+  color: var(--primary);
+  margin-bottom: 0;
+  font-weight: 600;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+
+.pinyin-toggle {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1.5px solid var(--border);
+  background: var(--card-bg);
+  color: var(--text-light);
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.pinyin-toggle:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.pinyin-toggle.active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: white;
+}
+
+.original-text {
+  font-family: 'Kaiti', 'STKaiti', 'SimSun', serif;
+  font-size: 1.15rem;
+  line-height: 2;
+  color: var(--text-primary);
+}
+
+.original-text.with-pinyin {
+  line-height: 3;
+}
+
+.original-text p {
+  text-indent: 2em;
+  margin-bottom: 8px;
+}
+
+.original-text ruby {
+  ruby-align: center;
+}
+
+.original-text rt {
+  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif;
+  font-size: 0.5em;
+  color: var(--primary-light);
+  font-style: normal;
+}
+
+.original-text .punctuation {
+  ruby-align: center;
+}
+
+.explanation-text {
+  font-size: 1rem;
+  line-height: 1.8;
+  color: var(--text-secondary);
+  text-align: justify;
+}
+
+/* Chapter Navigation */
+.chapter-nav {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 30px;
+}
+
+.nav-button {
+  flex: 1;
+  padding: 16px 24px;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: var(--card-bg);
+  color: var(--primary);
+  box-shadow: 0 2px 8px var(--shadow);
+}
+
+.nav-button:hover:not(.disabled) {
+  background: var(--primary);
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px var(--shadow);
+}
+
+.nav-button.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.nav-button.next {
+  text-align: right;
+}
+
+/* 移动端 hover 兼容 */
+@media (hover: hover) {
+  .nav-button:hover:not(.disabled) {
+    background: var(--primary);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px var(--shadow);
+  }
+}
+
+/* 章节卡片移动端 hover */
+@media (hover: hover) {
+  .chapter-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px var(--shadow);
+    border-color: var(--accent);
+  }
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .header h1 {
+    font-size: 1.8rem;
+  }
+
+  .chapters {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .chapter-card {
+    padding: 16px 12px;
+  }
+
+  .chapter-title-detail {
+    font-size: 1.4rem;
+  }
+
+  .original-text {
+    font-size: 1.05rem;
+  }
+
+  /* 移动端按钮按压效果 */
+  .nav-button:active:not(.disabled) {
+    transform: scale(0.96);
+    background: var(--primary-light);
+    color: white;
+  }
+
+  .chapter-card:active {
+    transform: scale(0.98);
+  }
+
+  .chapter-nav {
+    flex-direction: row;
+    gap: 10px;
+  }
+
+  .nav-button {
+    padding: 12px 16px;
+    font-size: 0.9rem;
+  }
+}
