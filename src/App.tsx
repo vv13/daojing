@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { pinyin } from 'pinyin-pro';
 import { daodejing, type Chapter, type ExplanationType } from './daodejing';
 import TopBar from './components/TopBar';
+import { Slider } from './components/ui/slider';
 import './App.css';
 
 interface ReadingStats {
@@ -112,7 +113,12 @@ const ui = {
   next: '下一章',
   nightModeEnable: '开启夜览',
   nightModeDisable: '关闭夜览',
+  fontSizeTitle: '字号设置',
 } as const;
+
+const FONT_SIZE_MIN = 10;
+const FONT_SIZE_DEFAULT = 16;
+const FONT_SIZE_MAX = 30;
 
 function App() {
   const initialUrlChapterId = readChapterParam();
@@ -134,6 +140,17 @@ function App() {
       return false;
     }
   });
+  const [fontSize, setFontSize] = useState<number>(() => {
+    try {
+      const saved = localStorage.getItem('daodejing_fontsize');
+      if (saved) {
+        const n = Number(saved);
+        if (Number.isFinite(n)) return Math.max(FONT_SIZE_MIN, Math.min(FONT_SIZE_MAX, Math.round(n)));
+      }
+    } catch { /* ignore */ }
+    return FONT_SIZE_DEFAULT;
+  });
+  const [showFontSizePopup, setShowFontSizePopup] = useState(false);
   const [activeExplanation, setActiveExplanation] = useState<ExplanationType>('literal');
   const currentReadingTimeRef = useRef(0);
   const chapterTimesRef = useRef<Record<number, number>>({});
@@ -165,6 +182,13 @@ function App() {
       /* ignore */
     }
   }, [nightMode]);
+
+  useEffect(() => {
+    document.documentElement.style.setProperty('--font-scale', String(fontSize / FONT_SIZE_DEFAULT));
+    try {
+      localStorage.setItem('daodejing_fontsize', String(fontSize));
+    } catch { /* ignore */ }
+  }, [fontSize]);
 
   useEffect(() => {
     currentReadingTimeRef.current = currentReadingTime;
@@ -431,10 +455,13 @@ function App() {
       <div className="stats-bar">
         <div className="progress-bar">
           <div className="progress-info">
-            <span>
-              {ui.progress}{totalTime > 0 ? `（${ui.totalDuration}：${formatTime(Math.floor(totalTime))}）` : ''}
+            <span className="progress-main">
+              <span>{ui.progress}</span>
+              {totalTime > 0 ? (
+                <span className="progress-duration">{ui.totalDuration}：{formatTime(Math.floor(totalTime))}</span>
+              ) : null}
             </span>
-            <span>{readChapters.length} / {daodejing.length} {ui.chapterUnit} ({progress}%)</span>
+            <span className="progress-summary">{readChapters.length} / {daodejing.length} {ui.chapterUnit} ({progress}%)</span>
           </div>
           <div className="progress-track">
             <div className="progress-fill" style={{ width: `${progress}%` }}></div>
@@ -625,25 +652,69 @@ function App() {
 
   return (
     <div className="app">
-      <button
-        type="button"
-        className={`night-toggle ${nightMode ? 'night-toggle--on' : ''}`}
-        onClick={() => setNightMode((v) => !v)}
-        aria-pressed={nightMode}
-        aria-label={nightMode ? ui.nightModeDisable : ui.nightModeEnable}
-        title={nightMode ? ui.nightModeDisable : ui.nightModeEnable}
-      >
-        {nightMode ? (
-          <svg className="night-toggle-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <circle cx="12" cy="12" r="4" />
-            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
+      <div className="toolbar-group">
+        <button
+          type="button"
+          className="toolbar-btn"
+          onClick={() => setShowFontSizePopup((v) => !v)}
+          aria-label={ui.fontSizeTitle}
+          title={ui.fontSizeTitle}
+        >
+          <svg className="toolbar-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M4 7V4h16v3" />
+            <path d="M9 20h6" />
+            <path d="M12 4v16" />
           </svg>
-        ) : (
-          <svg className="night-toggle-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
-          </svg>
-        )}
-      </button>
+        </button>
+        <button
+          type="button"
+          className={`toolbar-btn ${nightMode ? 'toolbar-btn--on' : ''}`}
+          onClick={() => setNightMode((v) => !v)}
+          aria-pressed={nightMode}
+          aria-label={nightMode ? ui.nightModeDisable : ui.nightModeEnable}
+          title={nightMode ? ui.nightModeDisable : ui.nightModeEnable}
+        >
+          {nightMode ? (
+            <svg className="toolbar-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <circle cx="12" cy="12" r="4" />
+              <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
+            </svg>
+          ) : (
+            <svg className="toolbar-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
+            </svg>
+          )}
+        </button>
+      </div>
+
+      {showFontSizePopup && (
+        <>
+          <div className="fontsize-overlay" onClick={() => setShowFontSizePopup(false)} />
+          <div className="fontsize-popup">
+            <div className="fontsize-popup-title">{ui.fontSizeTitle}</div>
+            <div className="fontsize-preview" style={{ fontSize: `${fontSize}px` }}>
+              道可道，非常道
+            </div>
+            <Slider
+              min={FONT_SIZE_MIN}
+              max={FONT_SIZE_MAX}
+              step={1}
+              value={[fontSize]}
+              onValueChange={([idx]) => {
+                const safeValue = Math.max(FONT_SIZE_MIN, Math.min(FONT_SIZE_MAX, Math.round(idx)));
+                setFontSize(safeValue);
+              }}
+              aria-label={ui.fontSizeTitle}
+            />
+            <div className="fontsize-marks">
+              <span className={fontSize <= 13 ? 'active' : ''}>小</span>
+              <span className={fontSize === FONT_SIZE_DEFAULT ? 'active' : ''}>标准</span>
+              <span className={fontSize >= 24 ? 'active' : ''}>大</span>
+            </div>
+          </div>
+        </>
+      )}
+
       {isDetailMode ? renderChapterDetail() : renderChapterList()}
     </div>
   );
