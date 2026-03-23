@@ -110,6 +110,8 @@ const ui = {
   pinyin: '拼',
   prev: '上一章',
   next: '下一章',
+  nightModeEnable: '开启夜览',
+  nightModeDisable: '关闭夜览',
 } as const;
 
 function App() {
@@ -125,6 +127,13 @@ function App() {
   const [currentReadingTime, setCurrentReadingTime] = useState(0);
   const [isDetailMode, setIsDetailMode] = useState(initialChapter != null);
   const [showPinyin, setShowPinyin] = useState(false);
+  const [nightMode, setNightMode] = useState(() => {
+    try {
+      return localStorage.getItem('daodejing_night') === '1';
+    } catch {
+      return false;
+    }
+  });
   const [activeExplanation, setActiveExplanation] = useState<ExplanationType>('literal');
   const currentReadingTimeRef = useRef(0);
   const chapterTimesRef = useRef<Record<number, number>>({});
@@ -147,6 +156,15 @@ function App() {
     };
     localStorage.setItem('daodejing_stats', JSON.stringify(stats));
   }, []);
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('night-mode', nightMode);
+    try {
+      localStorage.setItem('daodejing_night', nightMode ? '1' : '0');
+    } catch {
+      /* ignore */
+    }
+  }, [nightMode]);
 
   useEffect(() => {
     currentReadingTimeRef.current = currentReadingTime;
@@ -607,6 +625,25 @@ function App() {
 
   return (
     <div className="app">
+      <button
+        type="button"
+        className={`night-toggle ${nightMode ? 'night-toggle--on' : ''}`}
+        onClick={() => setNightMode((v) => !v)}
+        aria-pressed={nightMode}
+        aria-label={nightMode ? ui.nightModeDisable : ui.nightModeEnable}
+        title={nightMode ? ui.nightModeDisable : ui.nightModeEnable}
+      >
+        {nightMode ? (
+          <svg className="night-toggle-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="4" />
+            <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
+          </svg>
+        ) : (
+          <svg className="night-toggle-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
+          </svg>
+        )}
+      </button>
       {isDetailMode ? renderChapterDetail() : renderChapterList()}
     </div>
   );

@@ -34,6 +34,49 @@ body {
   position: relative;
 }
 
+.night-toggle {
+  position: absolute;
+  top: 18px;
+  right: 20px;
+  z-index: 20;
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: var(--card-bg);
+  color: var(--text-secondary);
+  cursor: pointer;
+  box-shadow: 0 2px 8px var(--shadow);
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
+  touch-action: manipulation;
+}
+
+.night-toggle-icon {
+  width: 22px;
+  height: 22px;
+}
+
+@media (hover: hover) {
+  .night-toggle:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+    background: var(--accent-light);
+  }
+}
+
+.night-toggle:active {
+  transform: scale(0.96);
+}
+
+.night-toggle--on {
+  color: var(--primary);
+  border-color: var(--primary-light);
+  background: var(--accent-light);
+}
+
 .page-topbar {
   display: flex;
   align-items: center;
@@ -790,7 +833,8 @@ body {
   .nav-icon,
   .pinyin-toggle,
   .explanation-tab,
-  .insight-option {
+  .insight-option,
+  .night-toggle {
     transition: none;
   }
 
@@ -804,7 +848,147 @@ body {
   .nav-button:active,
   .nav-button .nav-icon,
   .back-button:hover .back-icon,
-  .back-button:active .back-icon {
+  .back-button:active .back-icon,
+  .night-toggle:active {
     transform: none;
   }
+}
+
+/* —— 夜览模式 —— */
+html.night-mode {
+  color-scheme: dark;
+}
+
+html.night-mode {
+  --bg-color: #161412;
+  --card-bg: #1f1c18;
+  --primary: #c9a66b;
+  --primary-light: #dfc08a;
+  --text-primary: #e8e4dc;
+  --text-secondary: #b0a89c;
+  --text-light: #7a7268;
+  --accent: #8f7350;
+  --accent-light: #2e2922;
+  --border: #3d3830;
+  --shadow: rgba(0, 0, 0, 0.4);
+}
+
+html.night-mode .chapter-card.read {
+  border-color: rgba(201, 166, 107, 0.45);
+  background: linear-gradient(135deg, #2a261f 0%, #1e1b17 100%);
+}
+
+html.night-mode .insight-badge--init {
+  color: #c4bdb0;
+  background: #2e2a26;
+  border-color: #454039;
+}
+
+html.night-mode .insight-badge--seeking {
+  color: #5eead4;
+  background: #134e4a;
+  border-color: #0f766e;
+}
+
+html.night-mode .insight-badge--observing {
+  color: #7dd3fc;
+  background: #0c4a6e;
+  border-color: #0369a1;
+}
+
+html.night-mode .insight-badge--heard {
+  color: #86efac;
+  background: #14532d;
+  border-color: #166534;
+}
+
+html.night-mode .insight-badge--reflecting {
+  color: #c4b5fd;
+  background: #4c1d95;
+  border-color: #6d28d9;
+}
+
+html.night-mode .insight-badge--subtle {
+  color: #fdba74;
+  background: #7c2d12;
+  border-color: #9a3412;
+}
+
+html.night-mode .insight-badge--awakened {
+  color: #fef9c3;
+  background: linear-gradient(135deg, #5c3d1e 0%, #78350f 100%);
+  border-color: #a16207;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.35);
+}
+
+html.night-mode .insight-panel {
+  border-color: #3d3830;
+}
+
+html.night-mode .insight-option {
+  background: #2a261f;
+  color: var(--text-secondary);
+}
+
+@media (hover: hover) {
+  html.night-mode .insight-option:hover:not(.active) {
+    background: #353028;
+    color: var(--text-secondary);
+  }
+}
+
+html.night-mode .insight-option:active:not(.active) {
+  background: #353028;
+}
+
+html.night-mode .insight-option--init.active {
+  background: #3d3830;
+  border-color: #6b6458;
+  color: #e8e4dc;
+}
+
+html.night-mode .insight-option--seeking.active {
+  background: #134e4a;
+  border-color: #14b8a6;
+  color: #ccfbf1;
+}
+
+html.night-mode .insight-option--observing.active {
+  background: #0c4a6e;
+  border-color: #38bdf8;
+  color: #e0f2fe;
+}
+
+html.night-mode .insight-option--heard.active {
+  background: #14532d;
+  border-color: #4ade80;
+  color: #dcfce7;
+}
+
+html.night-mode .insight-option--reflecting.active {
+  background: #4c1d95;
+  border-color: #a78bfa;
+  color: #ede9fe;
+}
+
+html.night-mode .insight-option--subtle.active {
+  background: #7c2d12;
+  border-color: #fb923c;
+  color: #ffedd5;
+}
+
+html.night-mode .insight-option--awakened.active {
+  background: linear-gradient(135deg, #5c3d1e 0%, #78350f 100%);
+  border-color: #a16207;
+  color: #fefce8;
+}
+
+@media (hover: hover) {
+  html.night-mode .nav-button:hover {
+    background: linear-gradient(135deg, #2a261f 0%, #242019 100%);
+  }
+}
+
+html.night-mode .nav-button:active {
+  background: linear-gradient(135deg, #2a261f 0%, #242019 100%);
 }
