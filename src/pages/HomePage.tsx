@@ -28,13 +28,13 @@ export default function HomePage({
     return state?.badge ?? null;
   };
   const insightBadgeClassMap: Record<InsightStateKey, string> = {
-    init: 'text-[var(--insight-init-fg)] bg-[var(--insight-init-bg)] border-[var(--insight-init-border)]',
-    seeking: 'text-[var(--insight-seeking-fg)] bg-[var(--insight-seeking-bg)] border-[var(--insight-seeking-border)]',
-    observing: 'text-[var(--insight-observing-fg)] bg-[var(--insight-observing-bg)] border-[var(--insight-observing-border)]',
-    heard: 'text-[var(--insight-heard-fg)] bg-[var(--insight-heard-bg)] border-[var(--insight-heard-border)]',
-    reflecting: 'text-[var(--insight-reflecting-fg)] bg-[var(--insight-reflecting-bg)] border-[var(--insight-reflecting-border)]',
-    subtle: 'text-[var(--insight-subtle-fg)] bg-[var(--insight-subtle-bg)] border-[var(--insight-subtle-border)]',
-    awakened: 'text-[var(--insight-awakened-fg)] bg-[var(--insight-awakened-bg)] border-[var(--insight-awakened-border)]',
+    init: 'text-(--insight-init-fg) bg-(--insight-init-bg) border-(--insight-init-border)',
+    seeking: 'text-(--insight-seeking-fg) bg-(--insight-seeking-bg) border-(--insight-seeking-border)',
+    observing: 'text-(--insight-observing-fg) bg-(--insight-observing-bg) border-(--insight-observing-border)',
+    heard: 'text-(--insight-heard-fg) bg-(--insight-heard-bg) border-(--insight-heard-border)',
+    reflecting: 'text-(--insight-reflecting-fg) bg-(--insight-reflecting-bg) border-(--insight-reflecting-border)',
+    subtle: 'text-(--insight-subtle-fg) bg-(--insight-subtle-bg) border-(--insight-subtle-border)',
+    awakened: 'text-(--insight-awakened-fg) bg-(--insight-awakened-bg) border-(--insight-awakened-border)',
   };
   const getInsightBadgeClass = (id: number) => {
     const state = getInsightState(id) ?? 'observing';
@@ -44,17 +44,17 @@ export default function HomePage({
   return (
     <div>
       <header className="text-center pt-[calc(2.2rem+30px)] pb-[30px]">
-        <h1 className="text-[2.1rem] text-[color:var(--primary)] font-bold tracking-[0.3em] mb-2">{ui.appTitle}</h1>
-        <p className="text-[1.1rem] text-[color:var(--text-secondary)] font-['Kaiti','STKaiti',serif]">{ui.subtitle}</p>
+        <h1 className="text-[2.1rem] text-(--primary) font-bold tracking-[0.3em] mb-2">{ui.appTitle}</h1>
+        <p className="text-[1.1rem] text-(--text-secondary) font-['Kaiti','STKaiti',serif]">{ui.subtitle}</p>
       </header>
 
       <div className="bg-(--card-bg) rounded-xl p-5 mb-[30px] shadow-[0_2px_8px_var(--shadow)]">
         <div className="bg-transparent rounded-none p-0 mb-0 shadow-none">
-          <div className="flex justify-between items-start gap-3 mb-3 text-[0.95rem] text-[color:var(--text-secondary)]">
+          <div className="flex justify-between items-start gap-3 mb-3 text-[0.95rem] text-(--text-secondary)">
             <span className="inline-flex items-baseline gap-[0.45em] min-w-0">
               <span>{ui.progress}</span>
               {totalTime > 0 ? (
-                <span className="text-[0.74em] text-[color:var(--text-light)]">
+                <span className="text-[0.74em] text-(--text-light)">
                   {ui.totalDuration}：{formatTime(Math.floor(totalTime))}
                 </span>
               ) : null}
@@ -82,17 +82,17 @@ export default function HomePage({
               }`}
               onClick={() => onChapterClick(chapter)}
             >
-              <div className="text-[0.85rem] text-[color:var(--text-light)] mb-2">{chapter.id}</div>
-              <div className="text-[color:var(--text-primary)] font-['Kaiti','STKaiti',serif] leading-[1.4]" style={{ fontSize: 'var(--user-font-size)' }}>{chapter.title}</div>
+              <div className="text-[0.85rem] text-(--text-light) mb-2">{chapter.id}</div>
+              <div className="text-(--text-primary) font-['Kaiti','STKaiti',serif] leading-[1.4]" style={{ fontSize: 'var(--user-font-size)' }}>{chapter.title}</div>
               {getInsightBadge(chapter.id) && (
                 <div className={`absolute top-[0.6em] right-[0.6em] text-[0.7rem] px-[0.55em] py-[0.15em] rounded-[0.65em] font-medium border border-transparent ${getInsightBadgeClass(chapter.id)}`}>
                   {getInsightBadge(chapter.id)}
                 </div>
               )}
               {!getInsightBadge(chapter.id) && isChapterReading(chapter.id) && (
-                <div className="absolute top-[0.6em] right-[0.6em] text-[0.7rem] px-[0.55em] py-[0.15em] rounded-[0.65em] font-medium border border-transparent text-[var(--insight-observing-fg)] bg-[var(--insight-observing-bg)] border-[var(--insight-observing-border)]">{ui.reading}</div>
+                <div className="absolute top-[0.6em] right-[0.6em] text-[0.7rem] px-[0.55em] py-[0.15em] rounded-[0.65em] font-medium border text-(--insight-observing-fg) bg-(--insight-observing-bg) border-(--insight-observing-border)">{ui.reading}</div>
               )}
-              {chapterTime > 0 && <div className="mt-2 text-[0.75rem] text-[color:var(--text-light)]">{formatTime(chapterTime)}</div>}
+              {chapterTime > 0 && <div className="mt-2 text-[0.75rem] text-(--text-light)">{formatTime(chapterTime)}</div>}
             </div>
           );
         })}

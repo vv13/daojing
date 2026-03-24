@@ -302,7 +302,7 @@ function App() {
       <div className="absolute top-5 right-5 z-20 flex items-center gap-2">
         <button
           type="button"
-          className="w-[2.2rem] h-[2.2rem] flex items-center justify-center rounded-xl border border-(--border) bg-(--card-bg) text-[color:var(--text-secondary)] cursor-pointer shadow-[0_2px_8px_var(--shadow)] transition-[background,color,border-color,transform] duration-200 ease-in-out touch-manipulation active:scale-[0.96]"
+          className="w-[2.2rem] h-[2.2rem] flex items-center justify-center rounded-xl border border-(--border) bg-(--card-bg) text-(--text-secondary) cursor-pointer shadow-[0_2px_8px_var(--shadow)] transition-[background,color,border-color,transform] duration-200 ease-in-out touch-manipulation active:scale-[0.96]"
           onClick={() => setShowFontSizePopup((v) => !v)}
           aria-label={ui.fontSizeTitle}
           title={ui.fontSizeTitle}
@@ -315,8 +315,8 @@ function App() {
         </button>
         <button
           type="button"
-          className={`w-[2.2rem] h-[2.2rem] flex items-center justify-center rounded-xl border border-(--border) bg-(--card-bg) text-[color:var(--text-secondary)] cursor-pointer shadow-[0_2px_8px_var(--shadow)] transition-[background,color,border-color,transform] duration-200 ease-in-out touch-manipulation active:scale-[0.96] ${
-            nightMode ? 'text-[color:var(--primary)] border-(--primary-light) bg-(--accent-light)' : ''
+          className={`w-[2.2rem] h-[2.2rem] flex items-center justify-center rounded-xl border border-(--border) bg-(--card-bg) text-(--text-secondary) cursor-pointer shadow-[0_2px_8px_var(--shadow)] transition-[background,color,border-color,transform] duration-200 ease-in-out touch-manipulation active:scale-[0.96] ${
+            nightMode ? 'text-(--primary) border-(--primary-light) bg-(--accent-light)' : ''
           }`}
           onClick={() => setNightMode((v) => !v)}
           aria-pressed={nightMode}

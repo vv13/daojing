@@ -32,7 +32,7 @@ function Slider({ className = '', ticks, min = 0, max = 100, ...props }: SliderP
         <SliderPrimitive.Thumb className="block h-[18px] w-[18px] rounded-full border-2 border-(--primary) bg-(--card-bg) shadow-[0_1px_6px_var(--shadow)] focus-visible:outline-none focus-visible:shadow-[0_0_0_3px_color-mix(in_oklab,var(--primary)_30%,transparent)]" />
       </SliderPrimitive.Root>
       {ticks && ticks.length > 0 ? (
-        <div className="relative w-full h-5 mt-2 text-[0.84rem] text-[color:var(--text-light)]" aria-hidden="true">
+        <div className="relative w-full h-5 mt-2 text-[0.84rem] text-(--text-light)" aria-hidden="true">
           {ticks.map((tick) => (
             <span
               key={tick.value}
