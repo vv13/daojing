@@ -1,3 +1,6 @@
+@import "tailwindcss/theme";
+@import "tailwindcss/utilities";
+
 :root {
   font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
   font-synthesis: none;

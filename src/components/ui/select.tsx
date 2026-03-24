@@ -13,9 +13,12 @@ function SelectTrigger({
   ...props
 }: React.ComponentProps<typeof SelectPrimitive.Trigger>) {
   return (
-    <SelectPrimitive.Trigger className={`ui-select-trigger ${className}`.trim()} {...props}>
+    <SelectPrimitive.Trigger
+      className={`w-full border border-[color-mix(in_oklab,var(--border)_80%,var(--primary)_20%)] bg-[color-mix(in_oklab,var(--card-bg)_86%,var(--accent-light)_14%)] text-[color:var(--primary)] px-2.5 py-1.5 rounded-full text-[0.82rem] inline-flex items-center justify-between gap-2 cursor-pointer transition-transform active:scale-[0.98] ${className}`.trim()}
+      {...props}
+    >
       {children}
-      <SelectPrimitive.Icon className="ui-select-icon" aria-hidden="true">
+      <SelectPrimitive.Icon className="text-[color:var(--primary-light)] shrink-0" aria-hidden="true">
         ▾
       </SelectPrimitive.Icon>
     </SelectPrimitive.Trigger>
@@ -33,7 +36,10 @@ function SelectContent({
 }: React.ComponentProps<typeof SelectPrimitive.Content>) {
   return (
     <SelectPrimitive.Portal>
-      <SelectPrimitive.Content className={`ui-select-content ${className}`.trim()} {...props}>
+      <SelectPrimitive.Content
+        className={`z-[120] border border-(--border) bg-(--card-bg) rounded-xl shadow-[0_8px_20px_var(--shadow)] overflow-hidden ${className}`.trim()}
+        {...props}
+      >
         <SelectPrimitive.Viewport>{children}</SelectPrimitive.Viewport>
       </SelectPrimitive.Content>
     </SelectPrimitive.Portal>
@@ -46,9 +52,12 @@ function SelectItem({
   ...props
 }: React.ComponentProps<typeof SelectPrimitive.Item>) {
   return (
-    <SelectPrimitive.Item className={`ui-select-item ${className}`.trim()} {...props}>
+    <SelectPrimitive.Item
+      className={`relative py-[9px] pl-3 pr-[30px] text-[0.84rem] text-[color:var(--text-secondary)] cursor-pointer outline-none data-[highlighted]:bg-(--accent-light) data-[highlighted]:text-[color:var(--primary)] ${className}`.trim()}
+      {...props}
+    >
       <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>
-      <SelectPrimitive.ItemIndicator className="ui-select-item-indicator">✓</SelectPrimitive.ItemIndicator>
+      <SelectPrimitive.ItemIndicator className="absolute right-[9px] top-1/2 -translate-y-1/2 text-[color:var(--primary)]">✓</SelectPrimitive.ItemIndicator>
     </SelectPrimitive.Item>
   );
 }

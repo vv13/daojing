@@ -10,7 +10,6 @@ import {
   FONT_SIZE_MIN,
   FONT_SIZE_DEFAULT,
   FONT_SIZE_MAX,
-  FONT_SCALE_BASE,
 } from './constants';
 import './App.css';
 
@@ -36,6 +35,8 @@ const setChapterSearchParam = (chapterId: number | null, mode: 'push' | 'replace
   if (mode === 'push') window.history.pushState(state, '', nextUrl);
   else window.history.replaceState(state, '', nextUrl);
 };
+
+const FONT_SIZE_TICKS = [8, 16, 24] as const;
 
 function App() {
   const initialUrlChapterId = readChapterParam();
@@ -96,7 +97,6 @@ function App() {
 
   useEffect(() => {
     document.documentElement.style.setProperty('--user-font-size', `${fontSize}px`);
-    document.documentElement.style.setProperty('--font-scale', String(fontSize / FONT_SCALE_BASE));
     try { localStorage.setItem('daodejing_fontsize', String(fontSize)); } catch { /* ignore */ }
   }, [fontSize]);
 
@@ -298,16 +298,16 @@ function App() {
       : 0);
 
   return (
-    <div className="app">
-      <div className="toolbar-group">
+    <div className="min-h-screen max-w-[800px] mx-auto p-5 relative">
+      <div className="absolute top-5 right-5 z-20 flex items-center gap-2">
         <button
           type="button"
-          className="toolbar-btn"
+          className="w-[2.2rem] h-[2.2rem] flex items-center justify-center rounded-xl border border-(--border) bg-(--card-bg) text-[color:var(--text-secondary)] cursor-pointer shadow-[0_2px_8px_var(--shadow)] transition-[background,color,border-color,transform] duration-200 ease-in-out touch-manipulation active:scale-[0.96]"
           onClick={() => setShowFontSizePopup((v) => !v)}
           aria-label={ui.fontSizeTitle}
           title={ui.fontSizeTitle}
         >
-          <svg className="toolbar-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <svg className="w-[1.35em] h-[1.35em]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
             <path d="M4 7V4h16v3" />
             <path d="M9 20h6" />
             <path d="M12 4v16" />
@@ -315,19 +315,21 @@ function App() {
         </button>
         <button
           type="button"
-          className={`toolbar-btn ${nightMode ? 'toolbar-btn--on' : ''}`}
+          className={`w-[2.2rem] h-[2.2rem] flex items-center justify-center rounded-xl border border-(--border) bg-(--card-bg) text-[color:var(--text-secondary)] cursor-pointer shadow-[0_2px_8px_var(--shadow)] transition-[background,color,border-color,transform] duration-200 ease-in-out touch-manipulation active:scale-[0.96] ${
+            nightMode ? 'text-[color:var(--primary)] border-(--primary-light) bg-(--accent-light)' : ''
+          }`}
           onClick={() => setNightMode((v) => !v)}
           aria-pressed={nightMode}
           aria-label={nightMode ? ui.nightModeDisable : ui.nightModeEnable}
           title={nightMode ? ui.nightModeDisable : ui.nightModeEnable}
         >
           {nightMode ? (
-            <svg className="toolbar-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <svg className="w-[1.35em] h-[1.35em]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <circle cx="12" cy="12" r="4" />
               <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41" />
             </svg>
           ) : (
-            <svg className="toolbar-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <svg className="w-[1.35em] h-[1.35em]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
             </svg>
           )}
@@ -336,10 +338,10 @@ function App() {
 
       {showFontSizePopup && (
         <>
-          <div className="fontsize-overlay" onClick={() => setShowFontSizePopup(false)} />
-          <div className="fontsize-popup">
-            <div className="fontsize-popup-title">{ui.fontSizeTitle}</div>
-            <div className="fontsize-preview" style={{ fontSize: `${fontSize}px` }}>
+          <div className="fixed inset-0 z-[99] bg-black/25 animate-[fadeOverlay_0.15s_ease]" onClick={() => setShowFontSizePopup(false)} />
+          <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[100] bg-(--card-bg) rounded-2xl p-[20px_20px_16px] shadow-[0_8px_32px_rgba(0,0,0,0.18)] min-w-[280px] max-w-[360px]">
+            <div className="text-base font-semibold text-[color:var(--primary)] text-center mb-[14px]">{ui.fontSizeTitle}</div>
+            <div className="font-['Kaiti','STKaiti','SimSun',serif] text-[color:var(--text-primary)] text-center leading-[1.8] py-2.5 mb-[14px] border-y border-(--border) transition-[font-size] duration-150 ease-in-out" style={{ fontSize: `${fontSize}px` }}>
               道可道，非常道
             </div>
             <Slider
@@ -352,12 +354,8 @@ function App() {
                 setFontSize(safeValue);
               }}
               aria-label={ui.fontSizeTitle}
+              ticks={FONT_SIZE_TICKS.map((value) => ({ value }))}
             />
-            <div className="fontsize-marks">
-              <span className={fontSize <= 13 ? 'active' : ''}>小</span>
-              <span className={fontSize === FONT_SIZE_DEFAULT ? 'active' : ''}>标准</span>
-              <span className={fontSize >= 24 ? 'active' : ''}>大</span>
-            </div>
           </div>
         </>
       )}
