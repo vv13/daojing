@@ -117,7 +117,7 @@ const ui = {
 } as const;
 
 const FONT_SIZE_MIN = 10;
-const FONT_SIZE_DEFAULT = 16;
+const FONT_SIZE_DEFAULT = 13;
 const FONT_SIZE_MAX = 30;
 
 function App() {
@@ -184,6 +184,7 @@ function App() {
   }, [nightMode]);
 
   useEffect(() => {
+    document.documentElement.style.setProperty('--user-font-size', `${fontSize}px`);
     document.documentElement.style.setProperty('--font-scale', String(fontSize / FONT_SIZE_DEFAULT));
     try {
       localStorage.setItem('daodejing_fontsize', String(fontSize));
@@ -512,7 +513,9 @@ function App() {
           leftContent={(
             <button className="back-button" onClick={handleBack}>
               <svg className="back-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                <path d="M15 18l-6-6 6-6" />
+                <path d="M3 11.5L12 4l9 7.5" />
+                <path d="M5.5 10.5V20h13V10.5" />
+                <path d="M10 20v-5h4v5" />
               </svg>
               <span>{ui.back}</span>
             </button>

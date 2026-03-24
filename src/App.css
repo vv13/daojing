@@ -11,6 +11,8 @@
   --border: #e0d5c7;
   --shadow: rgba(139, 69, 19, 0.1);
   --font-scale: 1;
+  /* 与滑块数值一致，避免用 rem×scale 时根字号≠阅读字号 */
+  --user-font-size: 13px;
 }
 
 * {
@@ -418,8 +420,8 @@ body {
 }
 
 .back-icon {
-  width: calc(1em * var(--font-scale));
-  height: calc(1em * var(--font-scale));
+  width: calc(0.82em * var(--font-scale));
+  height: calc(0.82em * var(--font-scale));
   flex-shrink: 0;
   transition: transform 0.2s ease;
 }
@@ -517,7 +519,8 @@ body {
   box-shadow: 0 2px 12px var(--shadow);
 }
 
-.content-section h3 {
+.content-section h3,
+.insight-header h4 {
   font-size: calc(1.1rem * var(--font-scale));
   color: var(--primary);
   margin-bottom: 0;
@@ -571,8 +574,19 @@ body {
 
 .original-text {
   font-family: 'Kaiti', 'STKaiti', 'SimSun', serif;
-  font-size: calc(1.15rem * var(--font-scale));
+  font-size: var(--user-font-size);
   line-height: 2;
+  color: var(--text-primary);
+}
+
+/* 三个阅读区块（原文、解释、悟道状态）统一字体与主色 */
+.original-text,
+.explanation-text,
+.insight-chapter-time,
+.insight-hint,
+.insight-option,
+.insight-label {
+  font-family: 'Kaiti', 'STKaiti', 'SimSun', serif;
   color: var(--text-primary);
 }
 
@@ -585,8 +599,7 @@ body {
 }
 
 .original-text p {
-  text-indent: 2em;
-  margin-bottom: 8px;
+  margin-bottom: 0;
 }
 
 .original-text ruby {
@@ -661,9 +674,8 @@ body {
 }
 
 .explanation-text {
-  font-size: calc(1rem * var(--font-scale));
+  font-size: var(--user-font-size);
   line-height: 1.8;
-  color: var(--text-secondary);
   text-align: justify;
 }
 
@@ -684,15 +696,10 @@ body {
   margin-bottom: 8px;
 }
 
-.insight-header h4 {
-  margin: 0;
-  font-size: calc(1rem * var(--font-scale));
-  color: var(--primary);
-}
+.insight-header h4 { margin: 0; }
 
 .insight-chapter-time {
-  font-size: calc(0.88rem * var(--font-scale));
-  color: var(--primary);
+  font-size: var(--user-font-size);
   font-weight: 500;
   white-space: nowrap;
   flex-shrink: 0;
@@ -700,8 +707,7 @@ body {
 
 .insight-hint {
   margin: 0 0 14px;
-  color: var(--text-light);
-  font-size: calc(0.82rem * var(--font-scale));
+  font-size: var(--user-font-size);
   line-height: 1.45;
 }
 
@@ -714,7 +720,6 @@ body {
 .insight-option {
   border: 1px solid var(--border);
   background: #faf8f4;
-  color: var(--text-secondary);
   border-radius: 999px;
   padding: 7px 12px;
   cursor: pointer;
@@ -723,6 +728,7 @@ body {
   align-items: center;
   gap: 6px;
   touch-action: manipulation;
+  font-size: var(--user-font-size);
 }
 
 /* 未选中：统一基样式；仅选中态分层配色 */
@@ -783,7 +789,7 @@ body {
 }
 
 .insight-label {
-  font-size: calc(0.85rem * var(--font-scale));
+  font-size: var(--user-font-size);
   font-weight: 600;
   line-height: 1;
 }
