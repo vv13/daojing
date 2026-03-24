@@ -40,7 +40,7 @@ export const ui = {
   next: '下一章',
   nightModeEnable: '开启夜览',
   nightModeDisable: '关闭夜览',
-  fontSizeTitle: '字号设置',
+  fontSizeTitle: '正文设置',
 } as const;
 
 export const FONT_SIZE_MIN = 8;

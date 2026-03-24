@@ -338,24 +338,37 @@ function App() {
 
       {showFontSizePopup && (
         <>
-          <div className="fixed inset-0 z-[99] bg-black/25 animate-[fadeOverlay_0.15s_ease]" onClick={() => setShowFontSizePopup(false)} />
-          <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[100] bg-(--card-bg) rounded-2xl p-[20px_20px_16px] shadow-[0_8px_32px_rgba(0,0,0,0.18)] min-w-[280px] max-w-[360px]">
-            <div className="text-base font-semibold text-[color:var(--primary)] text-center mb-[14px]">{ui.fontSizeTitle}</div>
-            <div className="font-['Kaiti','STKaiti','SimSun',serif] text-[color:var(--text-primary)] text-center leading-[1.8] py-2.5 mb-[14px] border-y border-(--border) transition-[font-size] duration-150 ease-in-out" style={{ fontSize: `${fontSize}px` }}>
-              道可道，非常道
+          <div className="fixed inset-0 z-99 bg-black/25 animate-[fadeOverlay_0.15s_ease]" onClick={() => setShowFontSizePopup(false)} />
+          <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-100 bg-(--card-bg) rounded-2xl shadow-[0_8px_32px_rgba(0,0,0,0.18)] w-[min(320px,85vw)] overflow-hidden">
+            <div className="flex items-center justify-between px-5 pt-4 pb-3">
+              <span className="text-[0.95rem] font-semibold text-(--primary)">{ui.fontSizeTitle}</span>
+              <svg className="w-4 h-4 text-(--text-light) cursor-pointer shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" onClick={() => setShowFontSizePopup(false)} aria-label="关闭" role="button">
+                <path d="M18 6L6 18M6 6l12 12" />
+              </svg>
             </div>
-            <Slider
-              min={FONT_SIZE_MIN}
-              max={FONT_SIZE_MAX}
-              step={1}
-              value={[fontSize]}
-              onValueChange={([idx]) => {
-                const safeValue = Math.max(FONT_SIZE_MIN, Math.min(FONT_SIZE_MAX, Math.round(idx)));
-                setFontSize(safeValue);
-              }}
-              aria-label={ui.fontSizeTitle}
-              ticks={FONT_SIZE_TICKS.map((value) => ({ value }))}
-            />
+            <div className="px-5 pb-5 flex flex-col gap-3.5">
+              <div className="flex items-center justify-between gap-3">
+                <div
+                  className="font-['Kaiti','STKaiti','SimSun',serif] text-(--text-primary) leading-[1.8] transition-[font-size] duration-150 ease-in-out"
+                  style={{ fontSize: `${fontSize}px` }}
+                >
+                  道可道，非常道
+                </div>
+                <span className="text-[0.75rem] text-(--text-light) tabular-nums whitespace-nowrap shrink-0">{fontSize}px</span>
+              </div>
+              <Slider
+                min={FONT_SIZE_MIN}
+                max={FONT_SIZE_MAX}
+                step={1}
+                value={[fontSize]}
+                onValueChange={([idx]) => {
+                  const safeValue = Math.max(FONT_SIZE_MIN, Math.min(FONT_SIZE_MAX, Math.round(idx)));
+                  setFontSize(safeValue);
+                }}
+                aria-label={ui.fontSizeTitle}
+                ticks={FONT_SIZE_TICKS.map((value) => ({ value }))}
+              />
+            </div>
           </div>
         </>
       )}
