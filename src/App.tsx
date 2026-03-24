@@ -3,6 +3,7 @@ import { pinyin } from 'pinyin-pro';
 import { daodejing, type Chapter, type ExplanationType } from './daodejing';
 import TopBar from './components/TopBar';
 import { Slider } from './components/ui/slider';
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from './components/ui/select';
 import './App.css';
 
 interface ReadingStats {
@@ -358,7 +359,6 @@ function App() {
 
   const goToChapter = useCallback(
     (chapter: Chapter, urlMode: 'push' | 'replace' | 'none') => {
-      setActiveExplanation('literal');
       flushCurrentTime();
       stopTimer();
 
@@ -559,20 +559,22 @@ function App() {
         </div>
 
         <div className="content-section">
-          <h3>{ui.explanation}</h3>
-          <div className="explanation-tabs" role="tablist" aria-label={ui.explanationTabs}>
-            {currentChapter.explanations.map((item) => (
-              <button
-                key={item.type}
-                className={`explanation-tab ${activeExplanation === item.type ? 'active' : ''}`}
-                onClick={() => setActiveExplanation(item.type)}
-                role="tab"
-                aria-selected={activeExplanation === item.type}
-                type="button"
-              >
-                {item.label}
-              </button>
-            ))}
+          <div className="section-header section-header--compact">
+            <h3>{ui.explanation}</h3>
+            <div className="explanation-select-wrap" aria-label={ui.explanationTabs}>
+              <Select value={activeExplanation} onValueChange={(v) => setActiveExplanation(v as ExplanationType)}>
+                <SelectTrigger className="explanation-select-trigger" aria-label={ui.explanationTabs}>
+                  <SelectValue placeholder="选择释义风格" />
+                </SelectTrigger>
+                <SelectContent>
+                  {currentChapter.explanations.map((item) => (
+                    <SelectItem key={item.type} value={item.type}>
+                      {item.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
           <div className="explanation-text">
             {currentChapter.explanations.find((item) => item.type === activeExplanation)?.content ?? ''}
