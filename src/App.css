@@ -10,8 +10,8 @@
   --accent-light: #e8d4bc;
   --border: #e0d5c7;
   --shadow: rgba(139, 69, 19, 0.1);
-  --font-scale: 0.692;
-  --user-font-size: 9px;
+  --font-scale: 0.538;
+  --user-font-size: 7px;
 }
 
 * {
@@ -222,7 +222,7 @@ body {
 /* Header */
 .header {
   text-align: center;
-  padding: 40px 0 30px;
+  padding: calc(2.2rem * var(--font-scale) + 30px) 0 30px;
 }
 
 .header h1 {

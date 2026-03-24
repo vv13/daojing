@@ -43,8 +43,8 @@ export const ui = {
   fontSizeTitle: '字号设置',
 } as const;
 
-export const FONT_SIZE_MIN = 10;
-export const FONT_SIZE_DEFAULT = 9;
+export const FONT_SIZE_MIN = 6;
+export const FONT_SIZE_DEFAULT = 7;
 export const FONT_SIZE_MAX = 30;
 export const FONT_SCALE_BASE = 13;
 
