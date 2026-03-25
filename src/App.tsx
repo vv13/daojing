@@ -96,6 +96,11 @@ function App() {
   }, [nightMode]);
 
   useEffect(() => {
+    const suffix = isDetailMode && currentChapter ? currentChapter.title : ui.subtitle;
+    document.title = `道德经 - ${suffix}`;
+  }, [currentChapter, isDetailMode]);
+
+  useEffect(() => {
     document.documentElement.style.setProperty('--user-font-size', `${fontSize}px`);
     try { localStorage.setItem('daodejing_fontsize', String(fontSize)); } catch { /* ignore */ }
   }, [fontSize]);
