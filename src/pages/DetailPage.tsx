@@ -4,7 +4,8 @@ import { daodejing, type Chapter, type ExplanationType } from '../daodejing';
 import TopBar from '../components/TopBar';
 import { Card } from '../components/Card';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '../components/ui/select';
-import { formatTime, insightStates, ui, type InsightStateKey } from '../constants';
+import { editExplanationGithubTitle, formatTime, insightStates, ui, type InsightStateKey } from '../constants';
+import { getGithubEditDaodejingUrl } from '../githubEdit';
 
 export interface DetailPageProps {
   chapter: Chapter;
@@ -25,6 +26,9 @@ export default function DetailPage({
 }: DetailPageProps) {
   const [showPinyin, setShowPinyin] = useState(false);
   const [activeExplanation, setActiveExplanation] = useState<ExplanationType>('literal');
+
+  const githubEditUrl = getGithubEditDaodejingUrl();
+  const activeExplanationItem = chapter.explanations.find((item) => item.type === activeExplanation);
 
   const getInsightState = (id: number) => insightChapterStates[id];
 
@@ -135,7 +139,35 @@ export default function DetailPage({
           className="leading-[1.8] text-justify font-['Kaiti','STKaiti','SimSun',serif] text-(--text-primary)"
           style={{ fontSize: 'var(--user-font-size)' }}
         >
-          {chapter.explanations.find((item) => item.type === activeExplanation)?.content ?? ''}
+          {activeExplanationItem?.content ?? ''}
+          {githubEditUrl && activeExplanationItem ? (
+            <>
+              <span className="whitespace-nowrap inline-block align-baseline ml-[0.35em]">
+                <a
+                  href={githubEditUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title={editExplanationGithubTitle(chapter.id, activeExplanationItem.label)}
+                  aria-label={editExplanationGithubTitle(chapter.id, activeExplanationItem.label)}
+                  className="inline-flex items-center justify-center align-baseline text-(--text-light) hover:text-(--primary) transition-colors duration-200 touch-manipulation p-0.5 rounded-md border border-transparent hover:border-(--border) hover:bg-[color-mix(in_oklab,var(--accent-light)_55%,transparent)] active:scale-[0.96]"
+                >
+                  <svg
+                    className="w-[1em] h-[1em] shrink-0"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+                    <path d="m15 5 4 4" />
+                  </svg>
+                </a>
+              </span>
+            </>
+          ) : null}
         </div>
       </Card>
 

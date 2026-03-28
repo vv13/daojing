@@ -43,6 +43,10 @@ export const ui = {
   fontSizeTitle: '正文设置',
 } as const;
 
+export function editExplanationGithubTitle(chapterId: number, label: string): string {
+  return `第${chapterId}章 · ${label}：在 GitHub 上修改释义（合并后由 GitHub Pages 更新站点）`;
+}
+
 export const FONT_SIZE_MIN = 8;
 export const FONT_SIZE_DEFAULT = 16;
 export const FONT_SIZE_MAX = 24;
