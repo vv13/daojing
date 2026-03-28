@@ -6,8 +6,10 @@ createRoot(document.getElementById('root')!).render(<App />)
 
 if (import.meta.env.PROD && 'serviceWorker' in navigator) {
   window.addEventListener('load', () => {
+    const base = import.meta.env.BASE_URL
+    const swUrl = `${base}sw.js`
     navigator.serviceWorker
-      .register('/sw.js')
+      .register(swUrl, { scope: base })
       .then(async (registration) => {
         const shouldReloadForControl =
           !navigator.serviceWorker.controller &&
@@ -29,7 +31,7 @@ if (import.meta.env.PROD && 'serviceWorker' in navigator) {
           .filter((url): url is string => Boolean(url))
           .map((url) => new URL(url, window.location.origin).pathname)
 
-        const precacheUrls = Array.from(new Set(['/', ...assetUrls]))
+        const precacheUrls = Array.from(new Set(assetUrls))
         registration.active?.postMessage({
           type: 'PRECACHE_URLS',
           payload: precacheUrls,

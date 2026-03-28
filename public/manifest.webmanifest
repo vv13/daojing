@@ -2,14 +2,14 @@
   "name": "道德经 - 老子",
   "short_name": "道德经",
   "description": "道德经阅读与学习应用",
-  "start_url": "/",
+  "start_url": "./",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#ffffff",
   "lang": "zh-CN",
   "icons": [
     {
-      "src": "/icons.svg",
+      "src": "./icons.svg",
       "sizes": "any",
       "type": "image/svg+xml",
       "purpose": "any"

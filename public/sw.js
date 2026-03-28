@@ -1,5 +1,14 @@
-const CACHE_NAME = "daodejing-cache-v2";
-const APP_SHELL = ["/", "/index.html", "/manifest.webmanifest", "/icons.svg"];
+const CACHE_NAME = "daodejing-cache-v3";
+
+/** 与 sw.js 同目录的站点根（/ 或 /repo/），兼容 GitHub Pages 子路径 */
+const SW_DIR = self.location.pathname.slice(0, self.location.pathname.lastIndexOf("/") + 1);
+const BASE = self.location.origin + SW_DIR;
+
+const APP_SHELL = [
+  `${BASE}index.html`,
+  `${BASE}manifest.webmanifest`,
+  `${BASE}icons.svg`,
+];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
@@ -26,15 +35,13 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
 
-  // Navigation request: network-first with offline fallback.
   if (event.request.mode === "navigate") {
     event.respondWith(
-      fetch(event.request).catch(() => caches.match("/index.html"))
+      fetch(event.request).catch(() => caches.match(`${BASE}index.html`))
     );
     return;
   }
 
-  // Static assets: stale-while-revalidate.
   event.respondWith(
     caches.match(event.request).then((cached) => {
       const network = fetch(event.request)
