@@ -43,6 +43,15 @@ body {
   -webkit-tap-highlight-color: transparent;
 }
 
+/* 面包屑：避免部分浏览器仍给 `<a>` 画默认下划线（Tailwind `no-underline` 已设，此处兜底） */
+nav[data-slot='breadcrumb'] a {
+  text-decoration: none;
+}
+
+nav[data-slot='breadcrumb'] a:visited {
+  color: var(--text-secondary);
+}
+
 @keyframes fadeOverlay {
   from { opacity: 0; }
   to { opacity: 1; }

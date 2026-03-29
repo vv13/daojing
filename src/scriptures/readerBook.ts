@@ -1,6 +1,7 @@
 import type { Chapter } from '../books/types';
 import {
   DAODEJING_SLUG,
+  GANYINGPIAN_SLUG,
   YINFUJING_SLUG,
   ZHUANGZI_SLUG,
   scripturePath,
@@ -49,6 +50,15 @@ const READER_BOOK_META: Record<string, ReaderBookMeta> = {
     subtitle: '南华经 · 庄周及其后学',
     fontPreviewLine: '北冥有鱼，其名为鲲',
   },
+  [GANYINGPIAN_SLUG]: {
+    slug: GANYINGPIAN_SLUG,
+    readerPath: scripturePath(GANYINGPIAN_SLUG),
+    statsStorageKey: 'ganyingpian_stats',
+    documentTitleShort: '太上感应篇',
+    appTitle: '《太上感应篇》',
+    subtitle: '佚名（托名太上老君）',
+    fontPreviewLine: '祸福无门，惟人自召',
+  },
 };
 
 export async function loadReaderBookConfig(
@@ -69,6 +79,10 @@ export async function loadReaderBookConfig(
   if (slug === ZHUANGZI_SLUG) {
     const { zhuangzi } = await import('../books/zhuangzi');
     return { ...meta, chapters: zhuangzi };
+  }
+  if (slug === GANYINGPIAN_SLUG) {
+    const { ganyingpian } = await import('../books/ganyingpian');
+    return { ...meta, chapters: ganyingpian };
   }
   return null;
 }

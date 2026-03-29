@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { pinyin } from 'pinyin-pro';
 import type { Chapter, ExplanationType } from '../books/types';
-import TopBar from '../components/TopBar';
 import { Card } from '../components/Card';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '../components/ui/select';
 import { editExplanationGithubTitle, formatTime, insightStates, ui, type InsightStateKey } from '../constants';
@@ -15,7 +14,6 @@ export interface DetailPageProps {
   showExplanations?: boolean;
   /** 释义旁的 GitHub 编辑链接；无则不出现在线编辑入口。 */
   githubEditExplanationUrl?: string | null;
-  onBack: () => void;
   onInsightStateChange: (state: InsightStateKey) => void;
   onGoToChapter: (chapter: Chapter) => void;
 }
@@ -27,7 +25,6 @@ export default function DetailPage({
   insightChapterStates,
   showExplanations = true,
   githubEditExplanationUrl = null,
-  onBack,
   onInsightStateChange,
   onGoToChapter,
 }: DetailPageProps) {
@@ -56,29 +53,7 @@ export default function DetailPage({
     showExplanations && chapter.explanations.length > 0;
 
   return (
-    <div className="chapter-detail animate-[fadeIn_0.3s_ease]">
-      <TopBar
-        leftContent={
-          <button className="inline-flex items-center gap-1 bg-(--card-bg) border border-(--border) px-2.5 py-0 rounded-lg cursor-pointer text-[0.85rem] text-(--text-secondary) h-[2.2rem] transition-[background,color,transform] duration-200 ease-in-out relative z-3 pointer-events-auto touch-manipulation active:scale-[0.98] active:bg-(--accent-light) active:text-(--primary)" onClick={onBack}>
-            <svg
-              className="w-[0.8rem] h-[0.8rem] shrink-0 transition-transform duration-200 ease-in-out"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
-            >
-              <path d="M3 11.5L12 4l9 7.5" />
-              <path d="M5.5 10.5V20h13V10.5" />
-              <path d="M10 20v-5h4v5" />
-            </svg>
-            <span>{ui.back}</span>
-          </button>
-        }
-      />
-
+    <div className="chapter-detail animate-[fadeIn_0.3s_ease] pt-[calc(2.2rem+30px)]">
       <div className="text-center mb-[30px] py-[30px] px-5 bg-(--card-bg) rounded-2xl shadow-[0_2px_12px_var(--shadow)]">
         <div className="text-[0.9rem] text-(--text-light) mb-2.5">
           {ui.chapterPrefix} {chapter.id} {ui.chapterUnit}

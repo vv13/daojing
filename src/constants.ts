@@ -29,7 +29,6 @@ export const ui = {
   chapterUnit: '章',
   reading: '观象',
   insightTitle: '悟道状态',
-  back: '返回目录',
   chapterReading: '本章悟道',
   chapterPrefix: '第',
   original: '原文',

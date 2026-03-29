@@ -2,6 +2,7 @@
 export const DAODEJING_SLUG = 'daodejing' as const;
 export const YINFUJING_SLUG = 'yinfujing' as const;
 export const ZHUANGZI_SLUG = 'zhuangzi' as const;
+export const GANYINGPIAN_SLUG = 'ganyingpian' as const;
 
 export const JING_CATALOG_PATH = '/jing';
 
@@ -10,6 +11,7 @@ export const scripturePath = (slug: string) => `/jing/${slug}`;
 export const daodejingReaderPath = scripturePath(DAODEJING_SLUG);
 export const yinfujingReaderPath = scripturePath(YINFUJING_SLUG);
 export const zhuangziReaderPath = scripturePath(ZHUANGZI_SLUG);
+export const ganyingpianReaderPath = scripturePath(GANYINGPIAN_SLUG);
 
 export interface ScriptureBookItem {
   slug: string;
@@ -40,6 +42,13 @@ export const SCRIPTURE_CATALOG: ScriptureBookItem[] = [
     title: '庄子',
     authorLine: '庄周（南华经）',
     tagline: '三十三篇：内篇七、外篇十五、杂篇十一；寓言与齐物、逍遥之旨。',
+    available: true,
+  },
+  {
+    slug: GANYINGPIAN_SLUG,
+    title: '太上感应篇',
+    authorLine: '佚名（托名太上老君）',
+    tagline: '道教善书：总论、善行、恶行与结论；祸福自召，劝善戒恶。',
     available: true,
   },
 ];

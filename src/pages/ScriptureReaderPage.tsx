@@ -13,6 +13,14 @@ import {
   FONT_SIZE_DEFAULT,
   FONT_SIZE_MAX,
 } from '../constants';
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from '../components/ui/breadcrumb';
 import { loadReaderBookConfig, type ReaderBookConfig } from '../scriptures/readerBook';
 import { getGithubEditBookChaptersUrl } from '../githubEdit';
 import '../App.css';
@@ -372,26 +380,9 @@ function ScriptureReaderView({ config }: { config: ReaderBookConfig }) {
     setReadingChapters(prev => prev.filter(id => id !== chapterId));
   };
 
-  const handleBack = () => {
-    flushCurrentTime(); stopTimer();
-    setIsDetailMode(false); setCurrentChapter(null); currentChapterIdRef.current = null;
-    navigate(config.readerPath, { replace: true });
-  };
-
-  /** 与硬跳 `/jing` 不同：优先历史后退，章节阅读时回到上一页（多为本书章节目录）。 */
-  const handleTopCatalogNav = () => {
+  const onCrumbNavigate = () => {
     flushCurrentTime();
     stopTimer();
-    const canGoBack = typeof window !== 'undefined' && window.history.length > 1;
-    if (canGoBack) {
-      navigate(-1);
-      return;
-    }
-    if (isDetailMode) {
-      navigate(config.readerPath);
-      return;
-    }
-    navigate('/jing');
   };
 
   const totalTime =
@@ -399,22 +390,33 @@ function ScriptureReaderView({ config }: { config: ReaderBookConfig }) {
     + (isDetailMode && currentChapter != null
       ? Math.max(0, currentReadingTime - (chapterTimes[currentChapter.id] || 0))
       : 0);
-  const topLeftNavLabel = isDetailMode ? '经书目录' : '回到首页';
   return (
     <div className="min-h-screen max-w-[800px] mx-auto p-5 relative">
-      <div className="absolute top-5 left-5 z-20">
-        <button
-          type="button"
-          onClick={handleTopCatalogNav}
-          aria-label={topLeftNavLabel}
-          title={topLeftNavLabel}
-          className="inline-flex items-center gap-1 rounded-xl border border-(--border) bg-(--card-bg) text-(--text-secondary) px-3 py-2 text-[0.82rem] shadow-[0_2px_8px_var(--shadow)] transition-[background,color,border-color,transform] duration-200 ease-in-out touch-manipulation active:scale-[0.96] cursor-pointer font-inherit hover:text-(--primary) hover:border-(--primary-light)"
-        >
-          <span aria-hidden>←</span>
-          {topLeftNavLabel}
-        </button>
-      </div>
-      <div className="absolute top-5 right-5 z-20 flex items-center gap-2">
+      <div className="absolute top-5 right-5 left-5 z-20 flex items-center justify-between gap-3">
+        <div className="flex min-h-[2.75rem] min-w-0 max-w-[min(100%,calc(100vw-7rem))] flex-1 items-center">
+          <Breadcrumb aria-label="页面位置">
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbLink to="/jing" onClick={onCrumbNavigate}>
+                  经
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+              <BreadcrumbItem>
+                {isDetailMode ? (
+                  <BreadcrumbLink to={config.readerPath} onClick={onCrumbNavigate}>
+                    <span className="block max-w-[min(52vw,14rem)] truncate leading-none">{config.documentTitleShort}</span>
+                  </BreadcrumbLink>
+                ) : (
+                  <BreadcrumbPage>
+                    <span className="block max-w-[min(52vw,14rem)] truncate leading-none">{config.documentTitleShort}</span>
+                  </BreadcrumbPage>
+                )}
+              </BreadcrumbItem>
+            </BreadcrumbList>
+          </Breadcrumb>
+        </div>
+        <div className="flex shrink-0 items-center gap-2">
         <button
           type="button"
           className="w-[2.2rem] h-[2.2rem] flex items-center justify-center rounded-xl border border-(--border) bg-(--card-bg) text-(--text-secondary) cursor-pointer shadow-[0_2px_8px_var(--shadow)] transition-[background,color,border-color,transform] duration-200 ease-in-out touch-manipulation active:scale-[0.96]"
@@ -449,6 +451,7 @@ function ScriptureReaderView({ config }: { config: ReaderBookConfig }) {
             </svg>
           )}
         </button>
+        </div>
       </div>
 
       {showFontSizePopup && (
@@ -496,7 +499,6 @@ function ScriptureReaderView({ config }: { config: ReaderBookConfig }) {
           insightChapterStates={insightChapterStates}
           showExplanations={config.showExplanations ?? true}
           githubEditExplanationUrl={githubEditExplanationUrl}
-          onBack={handleBack}
           onInsightStateChange={handleInsightStateChange}
           onGoToChapter={(ch) => goToChapter(ch, 'replace')}
         />
