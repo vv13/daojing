@@ -1,5 +1,3 @@
-const DEFAULT_FILE = 'src/daodejing.ts';
-
 function safeOwnerRepo(raw: string | undefined): string | null {
   if (!raw?.trim()) return null;
   const t = raw.trim();
@@ -7,9 +5,9 @@ function safeOwnerRepo(raw: string | undefined): string | null {
   return t;
 }
 
-function safeFilePath(raw: string | undefined): string {
-  const f = (raw ?? DEFAULT_FILE).trim() || DEFAULT_FILE;
-  if (f.includes('..') || f.startsWith('/')) return DEFAULT_FILE;
+function safeRepoRelativeFile(raw: string): string | null {
+  const f = raw.trim();
+  if (!f || f.includes('..') || f.startsWith('/')) return null;
   return f;
 }
 
@@ -17,18 +15,15 @@ function buildGithubEditUrl(ownerRepo: string, branch: string, file: string): st
   return `https://github.com/${ownerRepo}/edit/${branch}/${file}`;
 }
 
-/**
- * GitHub 网页编辑器地址：修改 `src/daodejing.ts` 后合并到默认分支（默认 `main`），合并后 GitHub Actions 会更新 Pages。
- *
- * 解析顺序：`VITE_GITHUB_REPO` → `*.github.io/<repo>/` 路径 → `package.json` repository（本地 dev 可见编辑按钮）。
- */
-export function getGithubEditDaodejingUrl(): string | null {
+function resolveGithubEditUrlForFile(file: string): string | null {
+  const safeFile = safeRepoRelativeFile(file);
+  if (!safeFile) return null;
+
   const branch = (import.meta.env.VITE_GITHUB_BRANCH ?? 'main').trim() || 'main';
-  const file = safeFilePath(import.meta.env.VITE_GITHUB_FILE);
 
   const fromEnv = safeOwnerRepo(import.meta.env.VITE_GITHUB_REPO);
   if (fromEnv) {
-    return buildGithubEditUrl(fromEnv, branch, file);
+    return buildGithubEditUrl(fromEnv, branch, safeFile);
   }
 
   if (typeof window !== 'undefined') {
@@ -41,7 +36,7 @@ export function getGithubEditDaodejingUrl(): string | null {
       if (repoSeg) {
         const repo = decodeURIComponent(repoSeg);
         if (/^[\w.-]+$/i.test(repo)) {
-          return buildGithubEditUrl(`${owner}/${repo}`, branch, file);
+          return buildGithubEditUrl(`${owner}/${repo}`, branch, safeFile);
         }
       }
     }
@@ -49,8 +44,20 @@ export function getGithubEditDaodejingUrl(): string | null {
 
   const fromPkg = safeOwnerRepo(__GITHUB_REPO_DEFAULT__);
   if (fromPkg) {
-    return buildGithubEditUrl(fromPkg, branch, file);
+    return buildGithubEditUrl(fromPkg, branch, safeFile);
   }
 
   return null;
+}
+
+/**
+ * GitHub 网页编辑器地址：修改对应经书 `src/books/<slug>/chapters.json` 后合并到默认分支，合并后 GitHub Actions 会更新 Pages。
+ *
+ * 解析顺序：`VITE_GITHUB_REPO` → `*.github.io/<repo>/` 路径 → `package.json` repository（本地 dev 可见编辑按钮）。
+ */
+export function getGithubEditBookChaptersUrl(bookSlug: string): string | null {
+  const slug = bookSlug.trim();
+  if (!/^[a-z0-9-]+$/i.test(slug)) return null;
+  const file = `src/books/${slug}/chapters.json`;
+  return resolveGithubEditUrlForFile(file);
 }

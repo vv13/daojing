@@ -1,25 +1,32 @@
 import { useState } from 'react';
 import { pinyin } from 'pinyin-pro';
-import { daodejing, type Chapter, type ExplanationType } from '../daodejing';
+import type { Chapter, ExplanationType } from '../books/types';
 import TopBar from '../components/TopBar';
 import { Card } from '../components/Card';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '../components/ui/select';
 import { editExplanationGithubTitle, formatTime, insightStates, ui, type InsightStateKey } from '../constants';
-import { getGithubEditDaodejingUrl } from '../githubEdit';
 
 export interface DetailPageProps {
+  chapters: Chapter[];
   chapter: Chapter;
   currentReadingTime: number;
   insightChapterStates: Record<number, InsightStateKey>;
+  /** 为 false 时不展示「解释」区块。默认 true。 */
+  showExplanations?: boolean;
+  /** 释义旁的 GitHub 编辑链接；无则不出现在线编辑入口。 */
+  githubEditExplanationUrl?: string | null;
   onBack: () => void;
   onInsightStateChange: (state: InsightStateKey) => void;
   onGoToChapter: (chapter: Chapter) => void;
 }
 
 export default function DetailPage({
+  chapters,
   chapter,
   currentReadingTime,
   insightChapterStates,
+  showExplanations = true,
+  githubEditExplanationUrl = null,
   onBack,
   onInsightStateChange,
   onGoToChapter,
@@ -27,7 +34,6 @@ export default function DetailPage({
   const [showPinyin, setShowPinyin] = useState(false);
   const [activeExplanation, setActiveExplanation] = useState<ExplanationType>('literal');
 
-  const githubEditUrl = getGithubEditDaodejingUrl();
   const activeExplanationItem = chapter.explanations.find((item) => item.type === activeExplanation);
 
   const getInsightState = (id: number) => insightChapterStates[id];
@@ -45,6 +51,9 @@ export default function DetailPage({
     subtle: 'bg-(--insight-subtle-bg) text-(--insight-subtle-fg)',
     awakened: 'bg-(--insight-awakened-bg) text-(--insight-awakened-fg)',
   };
+
+  const showExplanationCard =
+    showExplanations && chapter.explanations.length > 0;
 
   return (
     <div className="chapter-detail animate-[fadeIn_0.3s_ease]">
@@ -88,7 +97,7 @@ export default function DetailPage({
           </button>
         </div>
         <div
-          className={`original-text font-['Kaiti','STKaiti','SimSun',serif] leading-[2] text-(--text-primary) ${showPinyin ? 'with-pinyin leading-[2.35]' : ''}`}
+          className={`original-text font-['Kaiti','STKaiti','SimSun',serif] leading-loose text-(--text-primary) ${showPinyin ? 'with-pinyin leading-[2.35]' : ''}`}
           style={{ fontSize: 'var(--user-font-size)' }}
         >
           {chapter.original.split('\n').map((line, i) => (
@@ -117,59 +126,61 @@ export default function DetailPage({
         </div>
       </Card>
 
-      <Card>
-        <div className="flex justify-between items-center gap-2.5 mb-3.5 pb-2.5 border-b border-(--border)">
-          <h3 className="text-[1.1rem] text-(--primary) m-0 font-semibold">{ui.explanation}</h3>
-          <div className="m-0 min-w-[140px] max-w-[52%]" aria-label={ui.explanationTabs}>
-            <Select value={activeExplanation} onValueChange={(v) => setActiveExplanation(v as ExplanationType)}>
-              <SelectTrigger aria-label={ui.explanationTabs}>
-                <SelectValue placeholder="选择释义风格" />
-              </SelectTrigger>
-              <SelectContent>
-                {chapter.explanations.map((item) => (
-                  <SelectItem key={item.type} value={item.type}>
-                    {item.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+      {showExplanationCard ? (
+        <Card>
+          <div className="flex justify-between items-center gap-2.5 mb-3.5 pb-2.5 border-b border-(--border)">
+            <h3 className="text-[1.1rem] text-(--primary) m-0 font-semibold">{ui.explanation}</h3>
+            <div className="m-0 min-w-[140px] max-w-[52%]" aria-label={ui.explanationTabs}>
+              <Select value={activeExplanation} onValueChange={(v) => setActiveExplanation(v as ExplanationType)}>
+                <SelectTrigger aria-label={ui.explanationTabs}>
+                  <SelectValue placeholder="选择释义风格" />
+                </SelectTrigger>
+                <SelectContent>
+                  {chapter.explanations.map((item) => (
+                    <SelectItem key={item.type} value={item.type}>
+                      {item.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
-        </div>
-        <div
-          className="leading-[1.8] text-justify font-['Kaiti','STKaiti','SimSun',serif] text-(--text-primary)"
-          style={{ fontSize: 'var(--user-font-size)' }}
-        >
-          {activeExplanationItem?.content ?? ''}
-          {githubEditUrl && activeExplanationItem ? (
-            <>
-              <span className="whitespace-nowrap inline-block align-baseline ml-[0.35em]">
-                <a
-                  href={githubEditUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  title={editExplanationGithubTitle(chapter.id, activeExplanationItem.label)}
-                  aria-label={editExplanationGithubTitle(chapter.id, activeExplanationItem.label)}
-                  className="inline-flex items-center justify-center align-baseline text-(--text-light) hover:text-(--primary) transition-colors duration-200 touch-manipulation p-0.5 rounded-md border border-transparent hover:border-(--border) hover:bg-[color-mix(in_oklab,var(--accent-light)_55%,transparent)] active:scale-[0.96]"
-                >
-                  <svg
-                    className="w-[1em] h-[1em] shrink-0"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    aria-hidden="true"
+          <div
+            className="leading-[1.8] text-justify font-['Kaiti','STKaiti','SimSun',serif] text-(--text-primary)"
+            style={{ fontSize: 'var(--user-font-size)' }}
+          >
+            {activeExplanationItem?.content ?? ''}
+            {githubEditExplanationUrl && activeExplanationItem ? (
+              <>
+                <span className="whitespace-nowrap inline-block align-baseline ml-[0.35em]">
+                  <a
+                    href={githubEditExplanationUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title={editExplanationGithubTitle(chapter.id, activeExplanationItem.label)}
+                    aria-label={editExplanationGithubTitle(chapter.id, activeExplanationItem.label)}
+                    className="inline-flex items-center justify-center align-baseline text-(--text-light) hover:text-(--primary) transition-colors duration-200 touch-manipulation p-0.5 rounded-md border border-transparent hover:border-(--border) hover:bg-[color-mix(in_oklab,var(--accent-light)_55%,transparent)] active:scale-[0.96]"
                   >
-                    <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
-                    <path d="m15 5 4 4" />
-                  </svg>
-                </a>
-              </span>
-            </>
-          ) : null}
-        </div>
-      </Card>
+                    <svg
+                      className="w-[1em] h-[1em] shrink-0"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      aria-hidden="true"
+                    >
+                      <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+                      <path d="m15 5 4 4" />
+                    </svg>
+                  </a>
+                </span>
+              </>
+            ) : null}
+          </div>
+        </Card>
+      ) : null}
 
       <Card>
         <div className="flex justify-between items-center gap-2.5 mb-4 pb-2.5 border-b border-(--border) max-[600px]:flex-col max-[600px]:items-start max-[600px]:gap-1">
@@ -216,7 +227,7 @@ export default function DetailPage({
           <button
             className="flex items-center gap-3 max-w-[48%] px-5 py-3.5 border border-(--border) rounded-xl text-base cursor-pointer transition-[border-color,background,box-shadow,transform] duration-200 ease-in-out bg-(--card-bg) text-(--primary) shadow-[0_2px_8px_var(--shadow)] touch-manipulation active:scale-[0.97]"
             onClick={() => {
-              const prev = daodejing.find((c) => c.id === chapter.id - 1);
+              const prev = chapters.find((c) => c.id === chapter.id - 1);
               if (prev) {
                 onGoToChapter(prev);
                 window.scrollTo(0, 0);
@@ -237,18 +248,18 @@ export default function DetailPage({
             <span className="flex flex-col gap-0.5 overflow-hidden">
               <span className="text-[0.8rem] text-(--text-light) leading-[1.2] text-left">{ui.prev}</span>
               <span className="text-[0.95rem] font-['Kaiti','STKaiti',serif] text-(--primary) leading-[1.3] whitespace-nowrap overflow-hidden text-ellipsis">
-                {(daodejing.find((c) => c.id === chapter.id - 1) ?? chapter).title}
+                {(chapters.find((c) => c.id === chapter.id - 1) ?? chapter).title}
               </span>
             </span>
           </button>
         ) : (
           <span />
         )}
-        {chapter.id < daodejing.length ? (
+        {chapter.id < chapters.length ? (
           <button
             className="flex items-center gap-3 max-w-[48%] ml-auto px-5 py-3.5 border border-(--border) rounded-xl text-base cursor-pointer transition-[border-color,background,box-shadow,transform] duration-200 ease-in-out bg-(--card-bg) text-(--primary) shadow-[0_2px_8px_var(--shadow)] touch-manipulation active:scale-[0.97]"
             onClick={() => {
-              const next = daodejing.find((c) => c.id === chapter.id + 1);
+              const next = chapters.find((c) => c.id === chapter.id + 1);
               if (next) {
                 onGoToChapter(next);
                 window.scrollTo(0, 0);
@@ -258,7 +269,7 @@ export default function DetailPage({
             <span className="flex flex-col gap-0.5 overflow-hidden">
               <span className="text-[0.8rem] text-(--text-light) leading-[1.2] text-right">{ui.next}</span>
               <span className="text-[0.95rem] font-['Kaiti','STKaiti',serif] text-(--primary) leading-[1.3] whitespace-nowrap overflow-hidden text-ellipsis">
-                {(daodejing.find((c) => c.id === chapter.id + 1) ?? chapter).title}
+                {(chapters.find((c) => c.id === chapter.id + 1) ?? chapter).title}
               </span>
             </span>
             <svg

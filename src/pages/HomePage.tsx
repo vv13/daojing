@@ -1,7 +1,10 @@
-import { daodejing, type Chapter } from '../daodejing';
+import type { Chapter } from '../books/types';
 import { formatTime, insightStates, ui, type InsightStateKey } from '../constants';
 
 export interface HomePageProps {
+  chapters: Chapter[];
+  appTitle: string;
+  subtitle: string;
   readChapters: number[];
   readingChapters: number[];
   insightChapterStates: Record<number, InsightStateKey>;
@@ -11,6 +14,9 @@ export interface HomePageProps {
 }
 
 export default function HomePage({
+  chapters,
+  appTitle,
+  subtitle,
   readChapters,
   readingChapters,
   insightChapterStates,
@@ -18,7 +24,8 @@ export default function HomePage({
   totalTime,
   onChapterClick,
 }: HomePageProps) {
-  const progress = Math.round((readChapters.length / daodejing.length) * 100);
+  const totalChapters = Math.max(1, chapters.length);
+  const progress = Math.round((readChapters.length / totalChapters) * 100);
 
   const isChapterRead = (id: number) => readChapters.includes(id);
   const isChapterReading = (id: number) => readingChapters.includes(id) && !isChapterRead(id);
@@ -44,8 +51,8 @@ export default function HomePage({
   return (
     <div>
       <header className="text-center pt-[calc(2.2rem+30px)] pb-[30px]">
-        <h1 className="text-[2.1rem] text-(--primary) font-bold tracking-[0.3em] mb-2">{ui.appTitle}</h1>
-        <p className="text-[1.1rem] text-(--text-secondary) font-['Kaiti','STKaiti',serif]">{ui.subtitle}</p>
+        <h1 className="text-[2.1rem] text-(--primary) font-bold tracking-[0.3em] mb-2">{appTitle}</h1>
+        <p className="text-[1.1rem] text-(--text-secondary) font-['Kaiti','STKaiti',serif]">{subtitle}</p>
       </header>
 
       <div className="bg-(--card-bg) rounded-xl p-5 mb-[30px] shadow-[0_2px_8px_var(--shadow)]">
@@ -60,7 +67,7 @@ export default function HomePage({
               ) : null}
             </span>
             <span className="text-right whitespace-normal break-words max-w-[46%] shrink">
-              {readChapters.length} / {daodejing.length} {ui.chapterUnit} ({progress}%)
+              {readChapters.length} / {chapters.length} {ui.chapterUnit} ({progress}%)
             </span>
           </div>
           <div className="h-2 bg-(--accent-light) rounded overflow-hidden">
@@ -70,7 +77,7 @@ export default function HomePage({
       </div>
 
       <div className="grid grid-cols-[repeat(auto-fill,minmax(140px,1fr))] gap-4">
-        {daodejing.map((chapter) => {
+        {chapters.map((chapter) => {
           const chapterTime = chapterTimes[chapter.id];
           return (
             <div
