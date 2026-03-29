@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Link, Navigate, useLocation, useNavigate, useParams } from 'react-router-dom';
+import { Navigate, useLocation, useNavigate, useParams } from 'react-router-dom';
 import type { Chapter } from '../books/types';
 import RouteFallback from '../components/RouteFallback';
 import { Slider } from '../components/ui/slider';
@@ -378,21 +378,41 @@ function ScriptureReaderView({ config }: { config: ReaderBookConfig }) {
     navigate(config.readerPath, { replace: true });
   };
 
+  /** 与硬跳 `/jing` 不同：优先历史后退，章节阅读时回到上一页（多为本书章节目录）。 */
+  const handleTopCatalogNav = () => {
+    flushCurrentTime();
+    stopTimer();
+    const canGoBack = typeof window !== 'undefined' && window.history.length > 1;
+    if (canGoBack) {
+      navigate(-1);
+      return;
+    }
+    if (isDetailMode) {
+      navigate(config.readerPath);
+      return;
+    }
+    navigate('/jing');
+  };
+
   const totalTime =
     Object.values(chapterTimes).reduce((a, b) => a + b, 0)
     + (isDetailMode && currentChapter != null
       ? Math.max(0, currentReadingTime - (chapterTimes[currentChapter.id] || 0))
       : 0);
+  const topLeftNavLabel = isDetailMode ? '经书目录' : '回到首页';
   return (
     <div className="min-h-screen max-w-[800px] mx-auto p-5 relative">
       <div className="absolute top-5 left-5 z-20">
-        <Link
-          to="/jing"
-          className="inline-flex items-center gap-1 rounded-xl border border-(--border) bg-(--card-bg) text-(--text-secondary) px-3 py-2 text-[0.82rem] shadow-[0_2px_8px_var(--shadow)] transition-[background,color,border-color,transform] duration-200 ease-in-out touch-manipulation active:scale-[0.96] no-underline hover:text-(--primary) hover:border-(--primary-light)"
+        <button
+          type="button"
+          onClick={handleTopCatalogNav}
+          aria-label={topLeftNavLabel}
+          title={topLeftNavLabel}
+          className="inline-flex items-center gap-1 rounded-xl border border-(--border) bg-(--card-bg) text-(--text-secondary) px-3 py-2 text-[0.82rem] shadow-[0_2px_8px_var(--shadow)] transition-[background,color,border-color,transform] duration-200 ease-in-out touch-manipulation active:scale-[0.96] cursor-pointer font-inherit hover:text-(--primary) hover:border-(--primary-light)"
         >
           <span aria-hidden>←</span>
-          经书目录
-        </Link>
+          {topLeftNavLabel}
+        </button>
       </div>
       <div className="absolute top-5 right-5 z-20 flex items-center gap-2">
         <button
