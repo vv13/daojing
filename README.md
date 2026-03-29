@@ -59,7 +59,7 @@ npm run preview # 预览构建结果
 npm run deploy  # 构建并执行 scripts/deploy.sh（若你自用该脚本上传）
 ```
 
-GitHub Pages 一般由仓库 **Actions** 部署；子路径需与 CI 一致设置 **`VITE_BASE_PATH`**（见 `.github/workflows`）。
+GitHub Pages 一般由仓库 **Actions** 部署；公开地址为 **`https://<用户名>.github.io/<仓库名>/`**（仓库名为 `daojing` 时即 `/daojing/`）。CI 会按仓库名自动设置 **`VITE_BASE_PATH`**，本地若需模拟子路径可手动指定（见 `.github/workflows`）。
 
 ---
 

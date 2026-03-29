@@ -1,4 +1,4 @@
-const CACHE_NAME = "daodejing-cache-v3";
+const CACHE_NAME = "daojing-cache-v1";
 
 /** 与 sw.js 同目录的站点根（/ 或 /repo/），兼容 GitHub Pages 子路径 */
 const SW_DIR = self.location.pathname.slice(0, self.location.pathname.lastIndexOf("/") + 1);

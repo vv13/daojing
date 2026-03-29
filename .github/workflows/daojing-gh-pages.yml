@@ -1,6 +1,6 @@
 # 部署到 GitHub Pages（仓库 Settings → Pages → Source: GitHub Actions）
 # 前端项目位于仓库根目录；若将来改为 monorepo 子目录，请恢复 working-directory / paths 前缀。
-name: Deploy daodejing to GitHub Pages
+name: Deploy daojing to GitHub Pages
 
 on:
   push:
@@ -8,13 +8,14 @@ on:
     paths:
       - 'src/**'
       - 'public/**'
+      - 'scripts/**'
       - 'index.html'
       - 'vite.config.ts'
       - 'package.json'
       - 'package-lock.json'
       - 'tsconfig*.json'
       - 'eslint.config.*'
-      - '.github/workflows/daodejing-gh-pages.yml'
+      - '.github/workflows/daojing-gh-pages.yml'
   workflow_dispatch:
 
 permissions:
@@ -23,7 +24,7 @@ permissions:
   id-token: write
 
 concurrency:
-  group: 'pages-daodejing'
+  group: 'pages-daojing'
   cancel-in-progress: true
 
 jobs:
