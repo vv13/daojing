@@ -9,7 +9,7 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "tsc -b && vite build && node scripts/copy-dist-404.mjs",
     "deploy": "npm run build && bash scripts/deploy.sh",
     "deploy:upload": "bash scripts/deploy.sh",
     "lint": "eslint .",
