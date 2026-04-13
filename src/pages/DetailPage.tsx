@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { pinyin } from 'pinyin-pro';
 import type { Chapter, ExplanationType } from '../books/types';
 import { Card } from '../components/Card';
@@ -28,8 +28,19 @@ export default function DetailPage({
   onInsightStateChange,
   onGoToChapter,
 }: DetailPageProps) {
+  const normalizeExplanationContent = (content: string[]): string => content.join('\n');
+
   const [showPinyin, setShowPinyin] = useState(false);
-  const [activeExplanation, setActiveExplanation] = useState<ExplanationType>('literal');
+  const [showLiteralInline, setShowLiteralInline] = useState(false);
+  const [activeExplanation, setActiveExplanation] = useState<ExplanationType>(
+    () => chapter.explanations[0]?.type ?? 'philosophical',
+  );
+
+  useEffect(() => {
+    setShowLiteralInline(false);
+    const first = chapter.explanations[0];
+    if (first) setActiveExplanation(first.type);
+  }, [chapter.id]);
 
   const activeExplanationItem = chapter.explanations.find((item) => item.type === activeExplanation);
 
@@ -49,8 +60,32 @@ export default function DetailPage({
     awakened: 'bg-(--insight-awakened-bg) text-(--insight-awakened-fg)',
   };
 
-  const showExplanationCard =
-    showExplanations && chapter.explanations.length > 0;
+  const showExplanationCard = showExplanations && chapter.explanations.length > 0;
+
+  const originalLines = chapter.original;
+  const literalLines = chapter.plain ?? [];
+  const showLiteralToggle = literalLines.length > 0;
+
+  const renderOriginalLineContent = (line: string) =>
+    showPinyin
+      ? [...line].map((char, j) => {
+          if (/[\u4e00-\u9fff]/.test(char)) {
+            return (
+              <ruby key={j}>
+                {char}
+                <rp>(</rp>
+                <rt>{pinyin(char, { toneType: 'symbol' })}</rt>
+                <rp>)</rp>
+              </ruby>
+            );
+          }
+          return (
+            <span key={j} className="punctuation">
+              {char}
+            </span>
+          );
+        })
+      : line;
 
   return (
     <div className="chapter-detail animate-[fadeIn_0.3s_ease] pt-[calc(2.2rem+30px)]">
@@ -64,41 +99,80 @@ export default function DetailPage({
       <Card>
         <div className="flex justify-between items-center gap-2.5 mb-4 pb-2.5 border-b border-(--border)">
           <h3 className="text-[1.1rem] text-(--primary) m-0 font-semibold">{ui.original}</h3>
-          <button
-            className={`w-[1.9em] h-[1.9em] rounded-full border-[1.5px] border-(--border) bg-(--card-bg) text-(--text-light) text-[0.8rem] cursor-pointer transition-[border-color,color,transform,background] duration-200 ease-in-out flex items-center justify-center shrink-0 touch-manipulation ${showPinyin ? 'active bg-(--primary) border-(--primary) text-white' : 'active:scale-[0.92] active:border-(--primary) active:text-(--primary)'}`}
-            onClick={() => setShowPinyin((prev) => !prev)}
-          >
-            {ui.pinyin}
-          </button>
+          <div className="flex items-center gap-1.5 shrink-0">
+            <button
+              type="button"
+              className={`w-[1.9em] h-[1.9em] rounded-full border-[1.5px] border-(--border) bg-(--card-bg) text-(--text-light) text-[0.8rem] cursor-pointer transition-[border-color,color,transform,background] duration-200 ease-in-out flex items-center justify-center touch-manipulation ${showPinyin ? 'bg-(--primary) border-(--primary) text-white' : 'active:scale-[0.92] active:border-(--primary) active:text-(--primary)'}`}
+              onClick={() => setShowPinyin((prev) => !prev)}
+              aria-pressed={showPinyin}
+              aria-label={showPinyin ? `${ui.pinyin}（已开）` : `${ui.pinyin}（已关）`}
+              title={showPinyin ? `${ui.pinyin}（已开）` : `${ui.pinyin}（已关）`}
+            >
+              {ui.pinyin}
+            </button>
+            {showLiteralToggle ? (
+              <button
+                type="button"
+                className={`w-[1.9em] h-[1.9em] rounded-full border-[1.5px] border-(--border) bg-(--card-bg) text-(--text-light) text-[0.8rem] cursor-pointer transition-[border-color,color,transform,background] duration-200 ease-in-out flex items-center justify-center touch-manipulation ${showLiteralInline ? 'bg-(--primary) border-(--primary) text-white' : 'active:scale-[0.92] active:border-(--primary) active:text-(--primary)'}`}
+                onClick={() => setShowLiteralInline((prev) => !prev)}
+                aria-pressed={showLiteralInline}
+                aria-label={showLiteralInline ? ui.literalToggleHide : ui.literalToggleShow}
+                title={showLiteralInline ? ui.literalToggleHide : ui.literalToggleShow}
+              >
+                {ui.literalToggle}
+              </button>
+            ) : null}
+          </div>
         </div>
         <div
           className={`original-text font-['Kaiti','STKaiti','SimSun',serif] leading-loose text-(--text-primary) ${showPinyin ? 'with-pinyin leading-[2.35]' : ''}`}
           style={{ fontSize: 'var(--user-font-size)' }}
         >
-          {chapter.original.split('\n').map((line, i) => (
-            <p key={i}>
-              {showPinyin
-                ? [...line].map((char, j) => {
-                    if (/[\u4e00-\u9fff]/.test(char)) {
-                      return (
-                        <ruby key={j}>
-                          {char}
-                          <rp>(</rp>
-                          <rt>{pinyin(char, { toneType: 'symbol' })}</rt>
-                          <rp>)</rp>
-                        </ruby>
-                      );
-                    }
-                    return (
-                      <span key={j} className="punctuation">
-                        {char}
-                      </span>
-                    );
-                  })
-                : line}
-            </p>
-          ))}
+          {showLiteralInline && showLiteralToggle
+            ? originalLines.map((line, i) => {
+                if (line.trim() === '') {
+                  return <div key={i} className="h-4 my-2" />;
+                }
+                return (
+                  <div key={i} className="border-b border-(--border) pb-4 mb-4 last:border-0 last:pb-0 last:mb-0">
+                    <p className="m-0">{renderOriginalLineContent(line)}</p>
+                    <p
+                      className="m-0 mt-2.5 leading-[1.85] text-justify text-(--text-secondary)"
+                      style={{ fontSize: 'var(--user-font-size)' }}
+                    >
+                      {literalLines[i] ?? ''}
+                    </p>
+                  </div>
+                );
+              })
+            : originalLines.map((line, i) => <p key={i}>{renderOriginalLineContent(line)}</p>)}
         </div>
+        {showLiteralToggle && githubEditExplanationUrl ? (
+          <div className="mt-3 flex justify-end">
+            <a
+              href={githubEditExplanationUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              title={editExplanationGithubTitle(chapter.id, '白话直译')}
+              aria-label={editExplanationGithubTitle(chapter.id, '白话直译')}
+              className="inline-flex items-center justify-center text-(--text-light) hover:text-(--primary) transition-colors duration-200 touch-manipulation p-0.5 rounded-md border border-transparent hover:border-(--border) hover:bg-[color-mix(in_oklab,var(--accent-light)_55%,transparent)] active:scale-[0.96]"
+            >
+              <svg
+                className="w-[1em] h-[1em] shrink-0"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+                <path d="m15 5 4 4" />
+              </svg>
+            </a>
+          </div>
+        ) : null}
       </Card>
 
       {showExplanationCard ? (
@@ -124,9 +198,9 @@ export default function DetailPage({
             className="leading-[1.8] text-justify font-['Kaiti','STKaiti','SimSun',serif] text-(--text-primary)"
             style={{ fontSize: 'var(--user-font-size)' }}
           >
-            {activeExplanationItem?.content ?? ''}
-            {githubEditExplanationUrl && activeExplanationItem ? (
-              <>
+            <>
+              {activeExplanationItem ? normalizeExplanationContent(activeExplanationItem.content) : ''}
+              {githubEditExplanationUrl && activeExplanationItem ? (
                 <span className="whitespace-nowrap inline-block align-baseline ml-[0.35em]">
                   <a
                     href={githubEditExplanationUrl}
@@ -151,8 +225,8 @@ export default function DetailPage({
                     </svg>
                   </a>
                 </span>
-              </>
-            ) : null}
+              ) : null}
+            </>
           </div>
         </Card>
       ) : null}

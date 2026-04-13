@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import PwaInstallBanner from '../components/PwaInstallBanner';
 import { SCRIPTURE_CATALOG, scripturePath } from '../scriptures/catalog';
 
 export default function ScriptureCatalogPage() {
@@ -15,6 +16,8 @@ export default function ScriptureCatalogPage() {
           典籍陈列，择一卷而入
         </p>
       </header>
+
+      <PwaInstallBanner />
 
       <div className="grid grid-cols-[repeat(auto-fill,minmax(200px,1fr))] gap-5">
         {SCRIPTURE_CATALOG.map((book) => {

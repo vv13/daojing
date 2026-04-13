@@ -35,11 +35,20 @@ export const ui = {
   explanation: '解释',
   explanationTabs: '释义风格',
   pinyin: '拼',
+  /** 原文旁：展开/收起白话直译 */
+  literalToggle: '译',
+  literalToggleShow: '显示白话直译',
+  literalToggleHide: '隐藏白话直译',
   prev: '上一章',
   next: '下一章',
   nightModeEnable: '开启夜览',
   nightModeDisable: '关闭夜览',
   fontSizeTitle: '正文设置',
+  pwaInstallRegion: '安装为本地应用',
+  pwaInstallTitle: '安装到本机',
+  pwaInstallHint: '安装后可从主屏幕或程序坞打开，已浏览章节可离线阅读。',
+  pwaInstallAction: '安装',
+  pwaIosHint: '在浏览器中点分享按钮，选择「添加到主屏幕」。',
 } as const;
 
 export function editExplanationGithubTitle(chapterId: number, label: string): string {

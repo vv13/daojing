@@ -8,6 +8,8 @@ const APP_SHELL = [
   `${BASE}index.html`,
   `${BASE}manifest.webmanifest`,
   `${BASE}icons.svg`,
+  `${BASE}icon-192.png`,
+  `${BASE}icon-512.png`,
 ];
 
 self.addEventListener("install", (event) => {
