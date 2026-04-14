@@ -11,6 +11,7 @@
   --border: #e0d5c7;
   --shadow: rgba(139, 69, 19, 0.1);
   --user-font-size: 16px;
+  --user-font-family: 'Kaiti','STKaiti','SimSun',serif;
 
   /* 悟道：同一暖褐轴，由浅入深（与 primary 呼应） */
   --insight-init-fg: #4d4540;
@@ -34,6 +35,10 @@
   --insight-awakened-fg: #f8f0e4;
   --insight-awakened-bg: #3d261a;
   --insight-awakened-border: #2a1810;
+}
+
+.user-serif-font {
+  font-family: var(--user-font-family);
 }
 
 body {

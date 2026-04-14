@@ -52,7 +52,7 @@ export default function HomePage({
     <div>
       <header className="text-center pt-[calc(2.2rem+30px)] pb-[30px]">
         <h1 className="text-[2.1rem] text-(--primary) font-bold tracking-[0.3em] mb-2">{appTitle}</h1>
-        <p className="text-[1.1rem] text-(--text-secondary) font-['Kaiti','STKaiti',serif]">{subtitle}</p>
+        <p className="user-serif-font text-[1.1rem] text-(--text-secondary)">{subtitle}</p>
       </header>
 
       <div className="bg-(--card-bg) rounded-xl p-5 mb-[30px] shadow-[0_2px_8px_var(--shadow)]">
@@ -90,7 +90,7 @@ export default function HomePage({
               onClick={() => onChapterClick(chapter)}
             >
               <div className="text-[0.85rem] text-(--text-light) mb-2">{chapter.id}</div>
-              <div className="text-(--text-primary) font-['Kaiti','STKaiti',serif] leading-[1.4]" style={{ fontSize: 'var(--user-font-size)' }}>{chapter.title}</div>
+              <div className="user-serif-font text-(--text-primary) leading-[1.4]" style={{ fontSize: 'var(--user-font-size)' }}>{chapter.title}</div>
               {getInsightBadge(chapter.id) && (
                 <div className={`absolute top-[0.6em] right-[0.6em] text-[0.7rem] px-[0.55em] py-[0.15em] rounded-[0.65em] font-medium border border-transparent ${getInsightBadgeClass(chapter.id)}`}>
                   {getInsightBadge(chapter.id)}

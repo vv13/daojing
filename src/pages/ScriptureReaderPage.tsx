@@ -3,6 +3,7 @@ import { Navigate, useLocation, useNavigate, useParams } from 'react-router-dom'
 import type { Chapter } from '../books/types';
 import RouteFallback from '../components/RouteFallback';
 import { Slider } from '../components/ui/slider';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import HomePage from './HomePage';
 import DetailPage from './DetailPage';
 import {
@@ -33,6 +34,15 @@ interface ReadingStats {
 }
 
 const FONT_SIZE_TICKS = [8, 16, 24] as const;
+const FONT_FAMILY_OPTIONS = [
+  { key: 'kaiti', label: '楷体', stack: "'Kaiti SC','Kaiti','STKaiti','BiauKai',serif", probe: 'Kaiti SC' },
+  { key: 'songti', label: '宋体', stack: "'Songti SC','STSong','SimSun',serif", probe: 'Songti SC' },
+  { key: 'fangsong', label: '仿宋', stack: "'FangSong','STFangsong',serif", probe: 'FangSong' },
+  { key: 'heiti', label: '黑体', stack: "'PingFang SC','Hiragino Sans GB','Microsoft YaHei',sans-serif", probe: 'PingFang SC' },
+  { key: 'yuanti', label: '圆体', stack: "'Hiragino Maru Gothic ProN','Arial Rounded MT Bold',sans-serif", probe: 'Hiragino Maru Gothic ProN' },
+  { key: 'lixuanke', label: '霞鹜文楷', stack: "'LXGW WenKai','Kaiti','STKaiti',serif", probe: 'LXGW WenKai' },
+] as const;
+type FontFamilyKey = (typeof FONT_FAMILY_OPTIONS)[number]['key'];
 
 export default function ScriptureReaderPage() {
   const { bookSlug } = useParams();
@@ -116,6 +126,35 @@ function ScriptureReaderView({ config }: { config: ReaderBookConfig }) {
     return FONT_SIZE_DEFAULT;
   });
   const [showFontSizePopup, setShowFontSizePopup] = useState(false);
+  const [availableFontFamilyKeys, setAvailableFontFamilyKeys] = useState<FontFamilyKey[]>([]);
+  const [fontFamily, setFontFamily] = useState<FontFamilyKey>(() => {
+    try {
+      const saved = localStorage.getItem('daodejing_fontfamily');
+      if (saved && FONT_FAMILY_OPTIONS.some((opt) => opt.key === saved)) {
+        return saved as FontFamilyKey;
+      }
+    } catch { /* ignore */ }
+    return 'kaiti';
+  });
+
+  useEffect(() => {
+    const hasFontCheck = typeof document !== 'undefined' && 'fonts' in document && 'check' in document.fonts;
+    if (!hasFontCheck) {
+      setAvailableFontFamilyKeys(FONT_FAMILY_OPTIONS.map((opt) => opt.key));
+      return;
+    }
+    const available = FONT_FAMILY_OPTIONS.filter((opt) =>
+      document.fonts.check(`16px "${opt.probe}"`)
+    ).map((opt) => opt.key);
+    setAvailableFontFamilyKeys(available.length > 0 ? available : [FONT_FAMILY_OPTIONS[0].key]);
+  }, []);
+
+  useEffect(() => {
+    if (availableFontFamilyKeys.length === 0) return;
+    if (!availableFontFamilyKeys.includes(fontFamily)) {
+      setFontFamily(availableFontFamilyKeys[0]);
+    }
+  }, [availableFontFamilyKeys, fontFamily]);
 
   const readChaptersRef = useRef<number[]>([]);
   useEffect(() => {
@@ -160,6 +199,12 @@ function ScriptureReaderView({ config }: { config: ReaderBookConfig }) {
     document.documentElement.style.setProperty('--user-font-size', `${fontSize}px`);
     try { localStorage.setItem('daodejing_fontsize', String(fontSize)); } catch { /* ignore */ }
   }, [fontSize]);
+
+  useEffect(() => {
+    const selected = FONT_FAMILY_OPTIONS.find((opt) => opt.key === fontFamily) ?? FONT_FAMILY_OPTIONS[0];
+    document.documentElement.style.setProperty('--user-font-family', selected.stack);
+    try { localStorage.setItem('daodejing_fontfamily', selected.key); } catch { /* ignore */ }
+  }, [fontFamily]);
 
   useEffect(() => { currentReadingTimeRef.current = currentReadingTime; }, [currentReadingTime]);
   useEffect(() => { chapterTimesRef.current = chapterTimes; }, [chapterTimes]);
@@ -467,7 +512,7 @@ function ScriptureReaderView({ config }: { config: ReaderBookConfig }) {
             <div className="px-5 pb-5 flex flex-col gap-3.5">
               <div className="flex items-center justify-between gap-3">
                 <div
-                  className="font-['Kaiti','STKaiti','SimSun',serif] text-(--text-primary) leading-[1.8] transition-[font-size] duration-150 ease-in-out"
+                  className="user-serif-font text-(--text-primary) leading-[1.8] transition-[font-size] duration-150 ease-in-out"
                   style={{ fontSize: `${fontSize}px` }}
                 >
                   {config.fontPreviewLine}
@@ -486,6 +531,26 @@ function ScriptureReaderView({ config }: { config: ReaderBookConfig }) {
                 aria-label={ui.fontSizeTitle}
                 ticks={FONT_SIZE_TICKS.map((value) => ({ value }))}
               />
+              <div className="pt-1">
+                <div className="text-[0.78rem] text-(--text-light) mb-2">{ui.fontFamilyTitle}</div>
+                <Select value={fontFamily} onValueChange={(v) => setFontFamily(v as FontFamilyKey)}>
+                  <SelectTrigger aria-label={ui.fontFamilyTitle}>
+                    <SelectValue placeholder="选择字体" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {FONT_FAMILY_OPTIONS.map((opt) => (
+                      <SelectItem
+                        key={opt.key}
+                        value={opt.key}
+                        disabled={!availableFontFamilyKeys.includes(opt.key)}
+                      >
+                        {opt.label}
+                        {!availableFontFamilyKeys.includes(opt.key) ? '（未安装）' : ''}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </div>
         </>

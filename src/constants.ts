@@ -44,6 +44,7 @@ export const ui = {
   nightModeEnable: '开启夜览',
   nightModeDisable: '关闭夜览',
   fontSizeTitle: '正文设置',
+  fontFamilyTitle: '字体',
   pwaInstallRegion: '安装为本地应用',
   pwaInstallTitle: '安装到本机',
   pwaInstallHint: '安装后可从主屏幕或程序坞打开，已浏览章节可离线阅读。',

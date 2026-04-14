@@ -93,7 +93,7 @@ export default function DetailPage({
         <div className="text-[0.9rem] text-(--text-light) mb-2.5">
           {ui.chapterPrefix} {chapter.id} {ui.chapterUnit}
         </div>
-        <h2 className="text-[1.8rem] text-(--primary) font-['Kaiti','STKaiti',serif] tracking-[0.2em]">{chapter.title}</h2>
+        <h2 className="user-serif-font text-[1.8rem] text-(--primary) tracking-[0.2em]">{chapter.title}</h2>
       </div>
 
       <Card>
@@ -125,7 +125,7 @@ export default function DetailPage({
           </div>
         </div>
         <div
-          className={`original-text font-['Kaiti','STKaiti','SimSun',serif] leading-loose text-(--text-primary) ${showPinyin ? 'with-pinyin leading-[2.35]' : ''}`}
+          className={`original-text user-serif-font leading-loose text-(--text-primary) ${showPinyin ? 'with-pinyin leading-[2.35]' : ''}`}
           style={{ fontSize: 'var(--user-font-size)' }}
         >
           {showLiteralInline && showLiteralToggle
@@ -195,7 +195,7 @@ export default function DetailPage({
             </div>
           </div>
           <div
-            className="leading-[1.8] text-justify font-['Kaiti','STKaiti','SimSun',serif] text-(--text-primary)"
+            className="user-serif-font leading-[1.8] text-justify text-(--text-primary)"
             style={{ fontSize: 'var(--user-font-size)' }}
           >
             <>
@@ -242,7 +242,7 @@ export default function DetailPage({
           </span>
         </div>
         <p
-          className="m-0 mb-3.5 leading-[1.45] font-['Kaiti','STKaiti','SimSun',serif] text-(--text-primary)"
+          className="user-serif-font m-0 mb-3.5 leading-[1.45] text-(--text-primary)"
           style={{ fontSize: 'var(--user-font-size)' }}
         >
           {insightDescription}
@@ -259,7 +259,7 @@ export default function DetailPage({
                 type="button"
               >
                 <span
-                  className={`font-semibold leading-none font-['Kaiti','STKaiti','SimSun',serif] ${isActive ? 'text-inherit' : 'text-(--text-primary)'}`}
+                  className={`user-serif-font font-semibold leading-none ${isActive ? 'text-inherit' : 'text-(--text-primary)'}`}
                   style={{ fontSize: 'var(--user-font-size)' }}
                 >
                   {state.label}
@@ -296,7 +296,7 @@ export default function DetailPage({
             </svg>
             <span className="flex flex-col gap-0.5 overflow-hidden">
               <span className="text-[0.8rem] text-(--text-light) leading-[1.2] text-left">{ui.prev}</span>
-              <span className="text-[0.95rem] font-['Kaiti','STKaiti',serif] text-(--primary) leading-[1.3] whitespace-nowrap overflow-hidden text-ellipsis">
+              <span className="user-serif-font text-[0.95rem] text-(--primary) leading-[1.3] whitespace-nowrap overflow-hidden text-ellipsis">
                 {(chapters.find((c) => c.id === chapter.id - 1) ?? chapter).title}
               </span>
             </span>
@@ -317,7 +317,7 @@ export default function DetailPage({
           >
             <span className="flex flex-col gap-0.5 overflow-hidden">
               <span className="text-[0.8rem] text-(--text-light) leading-[1.2] text-right">{ui.next}</span>
-              <span className="text-[0.95rem] font-['Kaiti','STKaiti',serif] text-(--primary) leading-[1.3] whitespace-nowrap overflow-hidden text-ellipsis">
+              <span className="user-serif-font text-[0.95rem] text-(--primary) leading-[1.3] whitespace-nowrap overflow-hidden text-ellipsis">
                 {(chapters.find((c) => c.id === chapter.id + 1) ?? chapter).title}
               </span>
             </span>
