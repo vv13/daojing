@@ -2,6 +2,7 @@ import type { Chapter } from '../books/types';
 import {
   DAODEJING_SLUG,
   GANYINGPIAN_SLUG,
+  QINGJINGJING_SLUG,
   YINFUJING_SLUG,
   ZHUANGZI_SLUG,
   scripturePath,
@@ -59,6 +60,15 @@ const READER_BOOK_META: Record<string, ReaderBookMeta> = {
     subtitle: '佚名（托名太上老君）',
     fontPreviewLine: '祸福无门，惟人自召',
   },
+  [QINGJINGJING_SLUG]: {
+    slug: QINGJINGJING_SLUG,
+    readerPath: scripturePath(QINGJINGJING_SLUG),
+    statsStorageKey: 'qingjingjing_stats',
+    documentTitleShort: '清静经',
+    appTitle: '《清静经》',
+    subtitle: '太上老君说常清静经',
+    fontPreviewLine: '人能常清静，天地悉皆归',
+  },
 };
 
 export async function loadReaderBookConfig(
@@ -83,6 +93,10 @@ export async function loadReaderBookConfig(
   if (slug === GANYINGPIAN_SLUG) {
     const { ganyingpian } = await import('../books/ganyingpian');
     return { ...meta, chapters: ganyingpian };
+  }
+  if (slug === QINGJINGJING_SLUG) {
+    const { qingjingjing } = await import('../books/qingjingjing');
+    return { ...meta, chapters: qingjingjing };
   }
   return null;
 }

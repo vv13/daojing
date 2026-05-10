@@ -3,6 +3,7 @@ export const DAODEJING_SLUG = 'daodejing' as const;
 export const YINFUJING_SLUG = 'yinfujing' as const;
 export const ZHUANGZI_SLUG = 'zhuangzi' as const;
 export const GANYINGPIAN_SLUG = 'ganyingpian' as const;
+export const QINGJINGJING_SLUG = 'qingjingjing' as const;
 
 export const JING_CATALOG_PATH = '/jing';
 
@@ -12,6 +13,7 @@ export const daodejingReaderPath = scripturePath(DAODEJING_SLUG);
 export const yinfujingReaderPath = scripturePath(YINFUJING_SLUG);
 export const zhuangziReaderPath = scripturePath(ZHUANGZI_SLUG);
 export const ganyingpianReaderPath = scripturePath(GANYINGPIAN_SLUG);
+export const qingjingjingReaderPath = scripturePath(QINGJINGJING_SLUG);
 
 export interface ScriptureBookItem {
   slug: string;
@@ -49,6 +51,13 @@ export const SCRIPTURE_CATALOG: ScriptureBookItem[] = [
     title: '太上感应篇',
     authorLine: '佚名（托名太上老君）',
     tagline: '道教善书：总论、善行、恶行与结论；祸福自召，劝善戒恶。',
+    available: true,
+  },
+  {
+    slug: QINGJINGJING_SLUG,
+    title: '清静经',
+    authorLine: '佚名（托名太上老君）',
+    tagline: '一卷短篇经典，澄心遣欲，常清常静，渐入真道。',
     available: true,
   },
 ];
