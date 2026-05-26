@@ -35,6 +35,10 @@
   --insight-awakened-fg: #f8f0e4;
   --insight-awakened-bg: #3d261a;
   --insight-awakened-border: #2a1810;
+
+  /* 未激活标签背景 */
+  --tag-inactive-bg: #f5f1ea;
+  --tag-inactive-hover-bg: #ebe2d6;
 }
 
 .user-serif-font {
@@ -151,7 +155,11 @@ html.night-mode {
   --insight-subtle-fg: #f5efe4;
   --insight-subtle-bg: #18130f;
   --insight-subtle-border: #261f18;
-  --insight-awakened-fg: #fdf7ed;
-  --insight-awakened-bg: #100c09;
-  --insight-awakened-border: #1a140f;
+  --insight-awakened-fg: #faf5ec;
+  --insight-awakened-bg: #1c1712;
+  --insight-awakened-border: #2a231c;
+
+  /* 未激活标签背景（夜览模式） */
+  --tag-inactive-bg: #2a2622;
+  --tag-inactive-hover-bg: #36322e;
 }

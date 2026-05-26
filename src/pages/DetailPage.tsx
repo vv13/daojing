@@ -253,7 +253,7 @@ export default function DetailPage({
             return (
               <button
                 key={state.key}
-                className={`border rounded-full px-3 py-[7px] cursor-pointer transition-[border-color,background-color,color,transform] duration-200 ease-in-out inline-flex items-center gap-1.5 touch-manipulation font-['Kaiti','STKaiti','SimSun',serif] ${isActive ? `border-transparent ${insightActiveClassMap[state.key]}` : 'border-(--border) bg-[#faf8f4] hover:border-(--accent) hover:bg-[#f7f3ec] active:scale-[0.97] active:border-(--accent) active:bg-[#f7f3ec]'}`}
+                className={`border rounded-full px-3 py-[7px] cursor-pointer transition-[border-color,background-color,color,transform] duration-200 ease-in-out inline-flex items-center gap-1.5 touch-manipulation font-['Kaiti','STKaiti','SimSun',serif] ${isActive ? `border-transparent ${insightActiveClassMap[state.key]}` : 'border-(--border) bg-(--tag-inactive-bg) hover:border-(--accent) hover:bg-(--tag-inactive-hover-bg) active:scale-[0.97] active:border-(--accent) active:bg-(--tag-inactive-hover-bg)'}`}
                 style={{ fontSize: 'var(--user-font-size)' }}
                 onClick={() => onInsightStateChange(state.key)}
                 type="button"
